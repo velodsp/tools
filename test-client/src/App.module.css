@@ -5,12 +5,14 @@
 .header {
     background-color: #000000;
     display: flex;
-    justify-content: center;
+    justify-content: flex-start;
+    align-items: center;
     padding: 10px;
+    gap: 30px;
+    line-height: 1;
 }
 
 .status {
-    line-height: 1;
     padding: 0.5rem 0.7rem;
     font-size: 0.9rem;
     border: 1px solid grey;

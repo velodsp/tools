@@ -1,11 +1,19 @@
 import {useEffect, useRef, useState} from "react";
 import toast from "react-hot-toast";
 
-export const useWebSocket = (url: string) => {
+interface UseWebSocketOptions {
+  onMessage?: (message: unknown) => void;
+}
+
+export const useWebSocket = (url: string, options: UseWebSocketOptions = {}) => {
   const socketRef = useRef<WebSocket | null>(null);
+  const onMessageRef = useRef(options.onMessage);
 
   const [connected, setConnected] = useState(false);
-  const [lastMessage, setLastMessage] = useState<unknown>(null);
+
+  useEffect(() => {
+    onMessageRef.current = options.onMessage;
+  }, [options.onMessage]);
 
   useEffect(() => {
     let disposed = false;
@@ -58,11 +66,16 @@ export const useWebSocket = (url: string) => {
         return;
       }
 
+      let message: unknown;
+
       try {
-        setLastMessage(JSON.parse(event.data));
+        message = JSON.parse(event.data);
       } catch {
-        setLastMessage(event.data);
+        console.warn("Received non-JSON WebSocket message", event.data);
+        return;
       }
+
+      onMessageRef.current?.(message);
     };
 
     return () => {
@@ -81,7 +94,7 @@ export const useWebSocket = (url: string) => {
     const socket = socketRef.current;
 
     if (socket?.readyState !== WebSocket.OPEN) {
-      return;
+      throw new Error("WebSocket is not connected");
     }
 
     socket.send(typeof data === "string" ? data : JSON.stringify(data));
@@ -89,7 +102,6 @@ export const useWebSocket = (url: string) => {
 
   return {
     connected,
-    lastMessage,
     send
   };
 };
