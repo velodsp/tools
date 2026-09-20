@@ -28,16 +28,12 @@ export interface DspState {
   };
 }
 
-export interface StateResponse {
-  id: number;
-  type: "state";
-  state: DspState;
-}
-
 export interface HelloMessage {
   type: "hello";
   protocol_version: number;
   firmware_version: string;
+  revision: number;
+  state: DspState;
 }
 
 export interface GetStateRequest {
@@ -55,6 +51,7 @@ export interface SetOutputGainRequest {
 export interface OkResponse {
   id: number;
   type: "ok";
+  revision: number;
 }
 
 export interface ErrorResponse {
@@ -67,15 +64,36 @@ export interface ErrorResponse {
   };
 }
 
+export interface OutputGainChange {
+  type: "output_gain";
+  output: number;
+  gain_db: number;
+}
+
+export interface PresetModifiedChange {
+  type: "preset_modified";
+  value: boolean;
+}
+
+export type DspStateChange =
+  | OutputGainChange
+  | PresetModifiedChange;
+
+export interface StateUpdateMessage {
+  type: "state_update";
+  revision: number;
+  changes: DspStateChange[];
+}
+
 export type DspRequest =
   | GetStateRequest
   | SetOutputGainRequest;
 
 export type DspResponse =
   | OkResponse
-  | ErrorResponse
-  | StateResponse;
+  | ErrorResponse;
 
 export type DspMessage =
   | HelloMessage
-  | DspResponse;
+  | DspResponse
+  | StateUpdateMessage;

@@ -1,4 +1,4 @@
-import {useEffect, useRef, useState} from "react";
+import {useCallback, useEffect, useRef, useState} from "react";
 import toast from "react-hot-toast";
 
 interface UseWebSocketOptions {
@@ -6,6 +6,7 @@ interface UseWebSocketOptions {
 }
 
 export const useWebSocket = (url: string, options: UseWebSocketOptions = {}) => {
+  const [generation, setGeneration] = useState(0);
   const socketRef = useRef<WebSocket | null>(null);
   const onMessageRef = useRef(options.onMessage);
 
@@ -88,9 +89,9 @@ export const useWebSocket = (url: string, options: UseWebSocketOptions = {}) => 
         socketRef.current = null;
       }
     };
-  }, []);
+  }, [url, generation]);
 
-  const send = (data: unknown) => {
+  const send = useCallback((data: unknown) => {
     const socket = socketRef.current;
 
     if (socket?.readyState !== WebSocket.OPEN) {
@@ -98,10 +99,16 @@ export const useWebSocket = (url: string, options: UseWebSocketOptions = {}) => 
     }
 
     socket.send(typeof data === "string" ? data : JSON.stringify(data));
-  };
+  }, []);
+
+  const reconnect = useCallback(() => {
+    setConnected(false);
+    setGeneration(g => g + 1);
+  }, []);
 
   return {
     connected,
-    send
+    send,
+    reconnect
   };
 };

@@ -1,0 +1,160 @@
+.gainSlider {
+    --track-width: 8px;
+    --thumb-width: 20px;
+    --thumb-height: 36px;
+
+    writing-mode: vertical-rl;
+    direction: rtl;
+
+    width: 32px;
+    height: 180px;
+
+    -webkit-appearance: none;
+    appearance: none;
+    background: transparent;
+    cursor: grab;
+
+    user-select: none;
+    -webkit-user-select: none;
+    -webkit-user-drag: none;
+    touch-action: none;
+}
+
+.gainSlider::-webkit-slider-runnable-track {
+    width: var(--track-width);
+    height: 100%;
+
+    background:
+            linear-gradient(
+                    to right,
+                    #080808 0%,
+                    #161616 40%,
+                    #050505 50%,
+                    #161616 60%,
+                    #080808 100%
+            );
+
+    border: 1px solid #353535;
+    border-radius: 999px;
+
+    box-shadow:
+            inset 1px 0 1px rgba(255, 255, 255, 0.08),
+            inset -1px 0 1px rgba(0, 0, 0, 0.5);
+}
+
+.gainSlider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+
+    width: var(--thumb-width);
+    height: var(--thumb-height);
+
+    transform: translateX(
+            calc((var(--thumb-width) - var(--track-width)) / 2)
+    );
+
+    border-radius: 4px;
+    border: 1px solid #111;
+
+    /*
+     * Layer 1 = center indicator line
+     * Layer 2 = subtle brushed/ribbed face
+     * Layer 3 = body shading
+     */
+    background:
+            linear-gradient(
+                    to bottom,
+                    transparent calc(50% - 1px),
+                    #ddd calc(50% - 1px),
+                    #ddd calc(50% + 1px),
+                    transparent calc(50% + 1px)
+            ),
+            linear-gradient(
+                    to right,
+                    #555 0%,
+                    #888 12%,
+                    #747474 35%,
+                    #666 50%,
+                    #747474 65%,
+                    #888 88%,
+                    #555 100%
+            );
+
+    box-shadow:
+            0 2px 4px rgba(0, 0, 0, 0.7),
+            inset 0 1px 1px rgba(255, 255, 255, 0.35),
+            inset 0 -2px 2px rgba(0, 0, 0, 0.35);
+
+    cursor: grab;
+}
+
+.gainSlider:active::-webkit-slider-thumb {
+    cursor: grabbing;
+
+    box-shadow:
+            0 1px 2px rgba(0, 0, 0, 0.8),
+            inset 0 1px 1px rgba(255, 255, 255, 0.25),
+            inset 0 -1px 2px rgba(0, 0, 0, 0.4);
+}
+
+.channel {
+    padding: 10px;
+    background-color: #252525;
+    border-radius: 5px;
+}
+
+.gainSliderContainer {
+    user-select: none;
+    -webkit-user-select: none;
+    -webkit-user-drag: none;
+    touch-action: none;
+}
+
+.controls {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    user-select: none;
+    -webkit-user-select: none;
+    -webkit-user-drag: none;
+    touch-action: none;
+}
+
+.gainInput {
+    width: 6ch;
+    font-family: monospace;
+    text-align: center;
+    background-color: #404040;
+    border: none;
+    border-radius: 4px;
+    padding: 4px;
+    font-size: 0.8rem;
+    color: #e3e3e3;
+}
+
+.gainInput:focus {
+    outline: 1px solid #d8d8d8;
+}
+
+.muteButton {
+    transition: 0.1s;
+    border: none;
+    border-radius: 4px;
+    padding: 4px 10px;
+    font-size: 0.8rem;
+    background-color: #404040;
+    color: #d3d3d3;
+    cursor: pointer;
+}
+
+.muteButton:active {
+    transition: 0s;
+    transform: scale(0.96);
+    filter: brightness(0.8);
+}
+
+.muted {
+    color: white;
+    background-color: #a52f2f;
+}

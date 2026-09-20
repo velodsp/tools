@@ -23,3 +23,9 @@
     background-color: hsl(223 71% 50.1%);
     border: none;
 }
+
+.channels {
+    margin: 10px;
+    display: flex;
+    gap: 10px;
+}

@@ -1,4 +1,11 @@
-import type {DspMessage, DspRequest, DspResponse, DspState, HelloMessage, StateResponse} from "./protocol.ts";
+import type {
+  DspMessage,
+  DspRequest,
+  DspResponse,
+  DspState,
+  HelloMessage, OkResponse,
+  StateUpdateMessage
+} from "./protocol.ts";
 import {useCallback, useRef, useState} from "react";
 import {useWebSocket} from "../transport/useWebsocket.ts";
 
@@ -25,19 +32,25 @@ interface PendingRequest {
   timeout: number;
 }
 
+interface AuthoritativeState {
+  revision: number;
+  value: DspState;
+}
+
 const REQUEST_TIMEOUT_MS = 3000;
 
 export const useDspClient = (url: string) => {
   const nextIdRef = useRef(1);
+  const revisionRef = useRef<number | null>(null);
+  const [authoritative, setAuthoritative] = useState<AuthoritativeState | null>(null);
 
   const pendingRef = useRef(
     new Map<number, PendingRequest>()
   );
 
   const [hello, setHello] = useState<HelloMessage | null>(null);
-  const [state, setState] = useState<DspState | null>(null);
 
-  const handleMessage = useCallback((raw: unknown) => {
+  const handleMessage = (raw: unknown) => {
     if (typeof raw !== "object" || raw === null || !("type" in raw)) {
       console.warn("Invalid DSP Message", raw);
       return;
@@ -47,6 +60,18 @@ export const useDspClient = (url: string) => {
 
     if (message.type === "hello") {
       setHello(message);
+
+      revisionRef.current = message.revision;
+      setAuthoritative({
+        revision: message.revision,
+        value: message.state
+      });
+
+      return;
+    }
+
+    if (message.type === "state_update") {
+      handleStateUpdate(message);
       return;
     }
 
@@ -71,7 +96,7 @@ export const useDspClient = (url: string) => {
     }
 
     pending.resolve(message);
-  }, []);
+  };
 
   const websocket = useWebSocket(url, {onMessage: handleMessage});
 
@@ -107,24 +132,101 @@ export const useDspClient = (url: string) => {
       });
     }, [websocket.send]);
 
-  const getState = useCallback(async () => {
-    const response = await request<StateResponse>({
-      type: "get_state"
+  const handleStateUpdate = (update: StateUpdateMessage) => {
+    const currentRevision = revisionRef.current;
+
+    if (currentRevision == null) {
+      reconnect();
+      return;
+    }
+
+    // already processed or obsolete
+    if (update.revision <= currentRevision) {
+      return;
+    }
+
+    // an update is missing (gap)
+    if (update.revision !== currentRevision + 1) {
+      console.warn(`DSP revision gap: has ${currentRevision}, got ${update.revision}`);
+
+      reconnect();
+      return;
+    }
+
+    revisionRef.current = update.revision;
+
+    setAuthoritative(current => {
+      if (current === null) return current;
+
+      return {
+        revision: update.revision,
+        value: applyStateUpdate(current.value, update)
+      };
     });
+  };
 
-    const newState = response.state;
+  const rejectPendingRequests = (reason: Error) => {
+    for (const pending of pendingRef.current.values()) {
+      window.clearTimeout(pending.timeout);
+      pending.reject(reason);
+    }
 
-    setState(newState);
+    pendingRef.current.clear();
+  };
 
-    return newState;
-  }, [request]);
+  const reconnect = () => {
+    revisionRef.current = null;
+    setAuthoritative(null);
+
+    rejectPendingRequests(new Error("DSP connection was reset"));
+    websocket.reconnect();
+  }
+
+  function applyStateUpdate(state: DspState, update: StateUpdateMessage) {
+    let next = state;
+
+    for (const change of update.changes) {
+      switch (change.type) {
+        case "output_gain": {
+          const outputs = [...next.dsp.outputs];
+
+          outputs[change.output] = {
+            ...outputs[change.output],
+            gain_db: change.gain_db
+          };
+
+          next = {
+            ...next,
+            dsp: {
+              ...next.dsp,
+              outputs
+            }
+          };
+
+          break;
+        }
+        case "preset_modified": {
+          next = {
+            ...next,
+            preset_modified: change.value
+          };
+
+          break;
+        }
+      }
+    }
+
+    return next;
+  }
 
   const setOutputGain = useCallback(async (output: number, gainDb: number) => {
-      await request({
+      const response = await request<OkResponse>({
         type: "set_output_gain",
         output,
         gain_db: gainDb
       });
+
+      return response.revision;
     },
     [request]
   );
@@ -133,9 +235,9 @@ export const useDspClient = (url: string) => {
     connected: websocket.connected,
 
     hello,
-    state,
+    state: authoritative?.value ?? null,
+    revision: authoritative?.revision ?? null,
 
-    getState,
     setOutputGain
   };
 };
