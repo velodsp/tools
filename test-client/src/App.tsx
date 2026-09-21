@@ -2,11 +2,12 @@ import s from "./App.module.css";
 import classNames from "classnames";
 import {useDspClient} from "./dsp/useDspClient.ts";
 import Channel from "./components/Channel/Channel.tsx";
+import {inputTarget, outputTarget} from "./dsp/protocol.ts";
 
 const host = import.meta.env.VITE_VELODSP_HOST;
 
 function App() {
-  const {connected, hello, state, revision, setOutputGain} = useDspClient(`ws://${host}/ws`);
+  const {connected, hello, state, revision, setChannelGain} = useDspClient(`ws://${host}/ws`);
 
   return (
     <div>
@@ -20,10 +21,12 @@ function App() {
       </div>
       {state && revision !== null &&
           <div className={s.channels}>
-            {state.dsp.inputs.map((c, i) => <Channel revision={revision} channel={c} key={`i` + i}/>)}
+            {state.dsp.inputs.map((c, i) => <Channel revision={revision}
+                                                     setChannelGain={(gainDb: number) => setChannelGain(inputTarget(i), gainDb)}
+                                                     channel={c} key={`i` + i}/>)}
             {state.dsp.outputs.map((c, i) => <Channel revision={revision}
-              setChannelGain={(gainDb: number) => setOutputGain(i, gainDb)}
-              channel={c} key={`o` + i}/>)}
+                                                      setChannelGain={(gainDb: number) => setChannelGain(outputTarget(i), gainDb)}
+                                                      channel={c} key={`o` + i}/>)}
           </div>
       }
     </div>

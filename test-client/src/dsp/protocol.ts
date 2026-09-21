@@ -1,3 +1,10 @@
+export type ChannelType = "input" | "output";
+
+export interface ChannelTarget {
+  channel_type: ChannelType;
+  channel: number;
+}
+
 export interface PeqBand {
   enabled: boolean;
   frequency_hz: number;
@@ -36,18 +43,6 @@ export interface HelloMessage {
   state: DspState;
 }
 
-export interface GetStateRequest {
-  type: "get_state";
-  id: number;
-}
-
-export interface SetOutputGainRequest {
-  type: "set_output_gain";
-  id: number;
-  output: number;
-  gain_db: number;
-}
-
 export interface OkResponse {
   id: number;
   type: "ok";
@@ -64,9 +59,14 @@ export interface ErrorResponse {
   };
 }
 
-export interface OutputGainChange {
-  type: "output_gain";
-  output: number;
+export interface ChannelGainChange extends ChannelTarget {
+  type: "channel_gain";
+  gain_db: number;
+}
+
+export interface SetChannelGainRequest extends ChannelTarget {
+  type: "set_channel_gain";
+  id: number;
   gain_db: number;
 }
 
@@ -76,7 +76,7 @@ export interface PresetModifiedChange {
 }
 
 export type DspStateChange =
-  | OutputGainChange
+  | ChannelGainChange
   | PresetModifiedChange;
 
 export interface StateUpdateMessage {
@@ -86,8 +86,7 @@ export interface StateUpdateMessage {
 }
 
 export type DspRequest =
-  | GetStateRequest
-  | SetOutputGainRequest;
+  | SetChannelGainRequest;
 
 export type DspResponse =
   | OkResponse
@@ -97,3 +96,13 @@ export type DspMessage =
   | HelloMessage
   | DspResponse
   | StateUpdateMessage;
+
+export const inputTarget = (channel: number): ChannelTarget => ({
+  channel_type: "input",
+  channel
+});
+
+export const outputTarget = (channel: number): ChannelTarget => ({
+  channel_type: "output",
+  channel
+});

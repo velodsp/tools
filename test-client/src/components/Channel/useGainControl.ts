@@ -9,6 +9,7 @@ export function useGainControl({authoritativeGainDb, revision, setGain}: {
 }) {
   const [draftGain, setDraftGain] = useState<number | null>(null);
   const [pendingRevision, setPendingRevision] = useState<number | null>(null);
+  const latestRequestId = useRef(0);
 
   const latestRequest = useRef<Promise<number> | null>(null);
 
@@ -17,11 +18,18 @@ export function useGainControl({authoritativeGainDb, revision, setGain}: {
       return;
     }
 
+    const requestId = ++latestRequestId.current;
+
     const request = setGain(gainDb);
 
     latestRequest.current = request;
 
     void request.catch(error => {
+      console.log("err");
+      if(requestId !== latestRequestId.current) {
+        return;
+      }
+
       console.error("Could not set gain", error);
 
       toast.error(

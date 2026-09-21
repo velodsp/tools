@@ -1,5 +1,6 @@
 import type {
-  DspMessage,
+  ChannelTarget, DspInput,
+  DspMessage, DspOutput,
   DspRequest,
   DspResponse,
   DspState,
@@ -180,31 +181,19 @@ export const useDspClient = (url: string) => {
 
     rejectPendingRequests(new Error("DSP connection was reset"));
     websocket.reconnect();
-  }
+  };
 
   function applyStateUpdate(state: DspState, update: StateUpdateMessage) {
     let next = state;
 
     for (const change of update.changes) {
       switch (change.type) {
-        case "output_gain": {
-          const outputs = [...next.dsp.outputs];
-
-          outputs[change.output] = {
-            ...outputs[change.output],
+        case "channel_gain":
+          next = updateChannel(next, change, channel => ({
+            ...channel,
             gain_db: change.gain_db
-          };
-
-          next = {
-            ...next,
-            dsp: {
-              ...next.dsp,
-              outputs
-            }
-          };
-
+          }));
           break;
-        }
         case "preset_modified": {
           next = {
             ...next,
@@ -219,17 +208,75 @@ export const useDspClient = (url: string) => {
     return next;
   }
 
-  const setOutputGain = useCallback(async (output: number, gainDb: number) => {
-      const response = await request<OkResponse>({
-        type: "set_output_gain",
-        output,
-        gain_db: gainDb
-      });
+  function updateInput(state: DspState, input: number, updater: (input: DspInput) => DspInput): DspState {
+    const inputs = [...state.dsp.inputs];
 
-      return response.revision;
-    },
-    [request]
-  );
+    const current = inputs[input];
+
+    if (!current) {
+      console.warn(`Invalid input ${input}`);
+      return state;
+    }
+
+    inputs[input] = updater(current);
+
+    return {
+      ...state,
+      dsp: {
+        ...state.dsp,
+        inputs
+      }
+    };
+  }
+
+  function updateOutput(state: DspState, output: number, updater: (output: DspOutput) => DspOutput): DspState {
+    const outputs = [...state.dsp.outputs];
+
+    const current = outputs[output];
+
+    if (!current) {
+      console.warn(`Invalid output ${output}`);
+      return state;
+    }
+
+    outputs[output] = updater(current);
+
+    return {
+      ...state,
+      dsp: {
+        ...state.dsp,
+        outputs
+      }
+    };
+  }
+
+  function updateChannel(state: DspState, target: ChannelTarget, updater: (channel: DspInput | DspOutput) => DspInput | DspOutput): DspState {
+    switch (target.channel_type) {
+      case "input":
+        return updateInput(
+          state,
+          target.channel,
+          input => updater(input) as DspInput
+        );
+
+      case "output":
+        return updateOutput(
+          state,
+          target.channel,
+          output => updater(output) as DspOutput
+        );
+    }
+  }
+
+  const setChannelGain = useCallback(async (target: ChannelTarget, gainDb: number) => {
+    const response = await request<OkResponse>({
+      type: `set_channel_gain`,
+      ...target,
+      gain_db: gainDb
+    });
+
+    return response.revision;
+  }, [request]);
 
   return {
     connected: websocket.connected,
@@ -238,6 +285,6 @@ export const useDspClient = (url: string) => {
     state: authoritative?.value ?? null,
     revision: authoritative?.revision ?? null,
 
-    setOutputGain
+    setChannelGain
   };
 };
