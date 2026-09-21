@@ -21,7 +21,7 @@ export function useThrottledValueCallback(callback: (value: number) => void, int
     }
 
     callback(value);
-  }, [callback, intervalMs]);
+  }, [callback]);
 
   const send = useCallback((value: number) => {
     pendingValue.current = value;
