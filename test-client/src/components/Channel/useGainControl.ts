@@ -5,7 +5,7 @@ import toast from "react-hot-toast";
 export function useGainControl({authoritativeGainDb, revision, setGain}: {
   authoritativeGainDb: number;
   revision: number;
-  setGain?: (gainDb: number) => Promise<number>;
+  setGain: (gainDb: number) => Promise<number>;
 }) {
   const [draftGain, setDraftGain] = useState<number | null>(null);
   const [pendingRevision, setPendingRevision] = useState<number | null>(null);
@@ -14,10 +14,6 @@ export function useGainControl({authoritativeGainDb, revision, setGain}: {
   const latestRequest = useRef<Promise<number> | null>(null);
 
   const sender = useThrottledValueCallback((gainDb) => {
-    if (!setGain) {
-      return;
-    }
-
     const requestId = ++latestRequestId.current;
 
     const request = setGain(gainDb);
@@ -68,7 +64,7 @@ export function useGainControl({authoritativeGainDb, revision, setGain}: {
   }, [revision, pendingRevision]);
 
   return {
-    displayGain: draftGain ?? authoritativeGainDb,
+    gain: draftGain ?? authoritativeGainDb,
     updateGain,
     flushGain
   }

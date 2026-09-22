@@ -101,9 +101,14 @@ export const useDspClient = (url: string) => {
 
   const websocket = useWebSocket(url, {onMessage: handleMessage});
 
+  type DistributiveOmit<T, K extends PropertyKey> =
+    T extends unknown ? Omit<T, K> : never;
+
+  type DspRequestWithoutId = DistributiveOmit<DspRequest, "id">;
+
   const request = useCallback(
     <TResponse extends DspResponse>(
-      request: Omit<DspRequest, "id"> | Record<string, unknown>) => {
+      request: DspRequestWithoutId) => {
       const id = nextIdRef.current++;
 
       return new Promise<TResponse>((resolve, reject) => {
@@ -194,6 +199,12 @@ export const useDspClient = (url: string) => {
             gain_db: change.gain_db
           }));
           break;
+        case "channel_muted":
+          next = updateChannel(next, change, channel => ({
+            ...channel,
+            muted: change.muted
+          }));
+          break;
         case "preset_modified": {
           next = {
             ...next,
@@ -202,6 +213,7 @@ export const useDspClient = (url: string) => {
 
           break;
         }
+        default: console.warn("Unhandled update: ", change);
       }
     }
 
@@ -278,6 +290,16 @@ export const useDspClient = (url: string) => {
     return response.revision;
   }, [request]);
 
+  const setChannelMuted = useCallback(async (target: ChannelTarget, muted: boolean) => {
+    const response = await request<OkResponse>({
+      type: `set_channel_muted`,
+      ...target,
+      muted
+    });
+
+    return response.revision;
+  }, [request]);
+
   return {
     connected: websocket.connected,
 
@@ -285,6 +307,7 @@ export const useDspClient = (url: string) => {
     state: authoritative?.value ?? null,
     revision: authoritative?.revision ?? null,
 
-    setChannelGain
+    setChannelGain,
+    setChannelMuted
   };
 };

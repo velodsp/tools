@@ -70,6 +70,17 @@ export interface SetChannelGainRequest extends ChannelTarget {
   gain_db: number;
 }
 
+export interface ChannelMutedChange extends ChannelTarget {
+  type: "channel_muted";
+  muted: boolean;
+}
+
+export interface SetChannelMutedRequest extends ChannelTarget {
+  type: "set_channel_muted";
+  id: number;
+  muted: boolean;
+}
+
 export interface PresetModifiedChange {
   type: "preset_modified";
   value: boolean;
@@ -77,6 +88,7 @@ export interface PresetModifiedChange {
 
 export type DspStateChange =
   | ChannelGainChange
+  | ChannelMutedChange
   | PresetModifiedChange;
 
 export interface StateUpdateMessage {
@@ -86,7 +98,8 @@ export interface StateUpdateMessage {
 }
 
 export type DspRequest =
-  | SetChannelGainRequest;
+  | SetChannelGainRequest
+  | SetChannelMutedRequest;
 
 export type DspResponse =
   | OkResponse

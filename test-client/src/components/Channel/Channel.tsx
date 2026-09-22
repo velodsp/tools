@@ -4,20 +4,27 @@ import type {DspInput, DspOutput} from "../../dsp/protocol.ts";
 import {dbToSlider, sliderToDb} from "./sliderMappingUtils.ts";
 import classNames from "classnames";
 import {useGainControl} from "./useGainControl.ts";
+import {useToggleControl} from "./useToggleControl.ts";
 
 interface ChannelProps {
   channel: DspInput | DspOutput;
   revision: number;
 
-  setChannelGain?: (gainDb: number) => Promise<number>;
+  setChannelGain: (gainDb: number) => Promise<number>;
+  setChannelMuted: (muted: boolean) => Promise<number>;
 }
 
-const Channel: FC<ChannelProps> = ({channel, setChannelGain, revision}) => {
-  const {displayGain, updateGain, flushGain} = useGainControl({authoritativeGainDb: channel.gain_db, revision, setGain: setChannelGain})
-
-  const sendMuted = (muted: boolean) => {
-    console.log(muted);
-  };
+const Channel: FC<ChannelProps> = ({channel, revision, setChannelGain, setChannelMuted}) => {
+  const {gain, updateGain, flushGain} = useGainControl({
+    authoritativeGainDb: channel.gain_db,
+    revision,
+    setGain: setChannelGain
+  });
+  const {toggled: muted, toggle: toggleMuted} = useToggleControl({
+    authoritativeToggled: channel.muted,
+    revision,
+    setToggled: setChannelMuted
+  });
 
   return (
     <div className={s.channel}>
@@ -31,7 +38,7 @@ const Channel: FC<ChannelProps> = ({channel, setChannelGain, revision}) => {
                onBlur={flushGain}
                draggable={false}
                className={s.gainSlider}
-               value={dbToSlider(displayGain)}
+               value={dbToSlider(gain)}
                onChange={(e) => {
                  updateGain(sliderToDb(Number(e.target.value)));
                }}
@@ -40,9 +47,9 @@ const Channel: FC<ChannelProps> = ({channel, setChannelGain, revision}) => {
         />
       </div>
       <div className={s.controls}>
-        <input className={s.gainInput} type={"text"} value={displayGain.toFixed(1)} readOnly={true}/>
-        <button aria-pressed={channel.muted} onClick={() => sendMuted(!channel.muted)}
-                className={classNames(s.muteButton, channel.muted && s.muted)}>Mute
+        <input className={s.gainInput} type={"text"} value={gain.toFixed(1)} readOnly={true}/>
+        <button aria-pressed={muted} onClick={toggleMuted}
+                className={classNames(s.muteButton, muted && s.muted)}>Mute
         </button>
       </div>
     </div>
