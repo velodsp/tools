@@ -1,10 +1,11 @@
 import s from "./Channel.module.css";
-import {type FC} from "react";
+import {type FC, useEffect, useRef, useState} from "react";
 import type {DspInput, DspOutput} from "../../dsp/protocol.ts";
 import {dbToSlider, sliderToDb} from "./sliderMappingUtils.ts";
 import classNames from "classnames";
 import {useGainControl} from "./useGainControl.ts";
 import {useToggleControl} from "./useToggleControl.ts";
+import {parseDbInput} from "./parseUtils.ts";
 
 interface ChannelProps {
   channel: DspInput | DspOutput;
@@ -25,6 +26,31 @@ const Channel: FC<ChannelProps> = ({channel, revision, setChannelGain, setChanne
     revision,
     setToggled: setChannelMuted
   });
+  const [gainInputField, setGainInputField] = useState<string | null>(null);
+  const [invalidGainInput, setInvalidGainInput] = useState<boolean>(false);
+  const skipNextBlurCommit = useRef(false);
+
+  const commitGainInputField = () => {
+    if(gainInputField === null) return;
+
+    const dbParseResult = parseDbInput(gainInputField);
+
+    if (dbParseResult === null) {
+      setInvalidGainInput(true);
+      return;
+    }
+
+    setInvalidGainInput(false);
+    setGainInputField(null);
+
+    updateGain(dbParseResult);
+    void flushGain();
+  };
+
+  useEffect(() => {
+    setInvalidGainInput(false);
+    setGainInputField(null);
+  }, [gain]);
 
   return (
     <div className={s.channel}>
@@ -47,7 +73,33 @@ const Channel: FC<ChannelProps> = ({channel, revision, setChannelGain, setChanne
         />
       </div>
       <div className={s.controls}>
-        <input className={s.gainInput} type={"text"} value={gain.toFixed(1)} readOnly={true}/>
+        <input className={classNames(s.gainInput, invalidGainInput && s.invalidGain)} type={"text"}
+               value={gainInputField ?? gain.toFixed(1)}
+               maxLength={5}
+               onChange={(e) => {
+                 setGainInputField(e.target.value);
+                 setInvalidGainInput(false);
+               }}
+               onKeyDown={(e) => {
+                 if (e.key === "Enter") {
+                   e.currentTarget.blur();
+                 }
+
+                 if (e.key === "Escape") {
+                   skipNextBlurCommit.current = true;
+                   setGainInputField(null);
+                   setInvalidGainInput(false);
+                   e.currentTarget.blur();
+                 }
+               }}
+               onBlur={() => {
+                 if (skipNextBlurCommit.current) {
+                   skipNextBlurCommit.current = false;
+                   return;
+                 }
+
+                 commitGainInputField();
+               }}/>
         <button aria-pressed={muted} onClick={toggleMuted}
                 className={classNames(s.muteButton, muted && s.muted)}>Mute
         </button>

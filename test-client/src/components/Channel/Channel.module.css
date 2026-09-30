@@ -158,3 +158,8 @@
     color: white;
     background-color: #a52f2f;
 }
+
+.invalidGain {
+    outline: 1px solid #ff5151 !important;
+    color: #ff5151;
+}
