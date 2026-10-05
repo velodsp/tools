@@ -27,6 +27,7 @@ function App() {
                        setChannelGain={(gainDb: number) => setChannelGain(inputTarget(i), gainDb)}
                        setChannelMuted={(muted: boolean) => setChannelMuted(inputTarget(i), muted)}/>
             )}
+            <div className={s.spacing}></div>
             {state.dsp.outputs.map((c, i) =>
               <Channel revision={revision}
                        channel={c} key={`o` + i}

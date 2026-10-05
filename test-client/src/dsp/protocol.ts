@@ -13,16 +13,21 @@ export interface PeqBand {
   type: "peak";
 }
 
+export interface Peq {
+  enabled: boolean;
+  bands: PeqBand[];
+}
+
 export interface DspInput {
   gain_db: number;
   muted: boolean;
-  peq: PeqBand[];
+  peq: Peq;
 }
 
 export interface DspOutput {
   gain_db: number;
   muted: boolean;
-  peq: PeqBand[];
+  peq: Peq;
 }
 
 export interface DspState {

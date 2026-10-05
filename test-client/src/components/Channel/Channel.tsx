@@ -6,6 +6,7 @@ import classNames from "classnames";
 import {useGainControl} from "./useGainControl.ts";
 import {useToggleControl} from "./useToggleControl.ts";
 import {parseDbInput} from "./parseUtils.ts";
+import Fader from "../Fader/Fader.tsx";
 
 interface ChannelProps {
   channel: DspInput | DspOutput;
@@ -14,6 +15,8 @@ interface ChannelProps {
   setChannelGain: (gainDb: number) => Promise<number>;
   setChannelMuted: (muted: boolean) => Promise<number>;
 }
+
+const dbMarkers = [10, 5, 0, -5, -10, -20, -40, -70];
 
 const Channel: FC<ChannelProps> = ({channel, revision, setChannelGain, setChannelMuted}) => {
   const {gain, updateGain, flushGain} = useGainControl({
@@ -31,7 +34,7 @@ const Channel: FC<ChannelProps> = ({channel, revision, setChannelGain, setChanne
   const skipNextBlurCommit = useRef(false);
 
   const commitGainInputField = () => {
-    if(gainInputField === null) return;
+    if (gainInputField === null) return;
 
     const dbParseResult = parseDbInput(gainInputField);
 
@@ -54,23 +57,27 @@ const Channel: FC<ChannelProps> = ({channel, revision, setChannelGain, setChanne
 
   return (
     <div className={s.channel}>
-      <div className={s.gainSliderContainer}>
-        <input type={"range"} min={0} max={1} step={0.25 / 12 / 2}
+      <div className={s.quickToggles}>
+        <button className={classNames(s.quickToggle, channel.peq.enabled && s.quickToggleEnabled)}>EQ</button>
+        <button className={s.quickToggle}>G</button>
+        <button className={s.quickToggle}>C</button>
+        <button className={s.quickToggle}>L</button>
+      </div>
+      <div className={s.levelContainer}>
+        <div className={s.dbScale}>
+          {dbMarkers.map((db) => (
+            <div key={db} className={s.dbMarker} style={{bottom: `${dbToSlider(db) * 100}%`}}>
+              <span className={s.dbLabel}>{db}</span>
+              <span className={s.dbTick}/>
+            </div>
+          ))}
+        </div>
+        <Fader value={dbToSlider(gain)} onChange={(value) => updateGain(sliderToDb(value))}
+               onCommit={() => flushGain()}
                onDoubleClick={() => {
                  updateGain(0);
                  void flushGain();
-               }}
-               onKeyUp={flushGain}
-               onBlur={flushGain}
-               draggable={false}
-               className={s.gainSlider}
-               value={dbToSlider(gain)}
-               onChange={(e) => {
-                 updateGain(sliderToDb(Number(e.target.value)));
-               }}
-               onPointerUp={flushGain}
-               onPointerCancel={flushGain}
-        />
+               }}/>
       </div>
       <div className={s.controls}>
         <input className={classNames(s.gainInput, invalidGainInput && s.invalidGain)} type={"text"}

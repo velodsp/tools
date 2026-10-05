@@ -1,0 +1,83 @@
+.fader {
+    position: relative;
+
+    padding-block: calc(var(--thumb-height) / 2);
+    width: var(--thumb-width);
+    cursor: grab;
+    padding: 0 9px;
+
+    touch-action: none;
+    user-select: none;
+}
+
+.fader:active {
+    cursor: grabbing;
+}
+
+.faderTrack {
+    width: 9px;
+    height: 180px;
+    margin-inline: auto;
+
+    background: #0b0b0b;
+
+    border: 1px solid #353535;
+    border-radius: 3px;
+}
+
+.faderThumb {
+    position: absolute;
+    left: 50%;
+
+    width: 28px;
+    height: 46px;
+    transform: translate(-50%, 50%);
+    border-radius: 4px;
+    border: 1px solid #111;
+
+    background:
+            linear-gradient(
+                    to bottom,
+                    transparent calc(50% - 1px),
+                    #ddd calc(50% - 2px),
+                    #ddd calc(50% + 2px),
+                    transparent calc(50% + 1px)
+            ),
+            linear-gradient(
+                    to right,
+                    #555 0%,
+                    #888 12%,
+                    #747474 35%,
+                    #666 50%,
+                    #747474 65%,
+                    #888 88%,
+                    #555 100%
+            );
+
+    box-shadow:
+            0 2px 4px rgba(0, 0, 0, 0.7),
+            inset 0 1px 1px rgba(255, 255, 255, 0.35),
+            inset 0 -2px 2px rgba(0, 0, 0, 0.35);
+
+    pointer-events: none;
+}
+
+.gainSlider {
+    --track-width: 9px;
+    --thumb-width: 28px;
+    --thumb-height: 46px;
+
+    writing-mode: vertical-rl;
+    direction: rtl;
+    height: 180px;
+
+    -webkit-appearance: none;
+    appearance: none;
+    background: transparent;
+    cursor: grab;
+
+    user-select: none;
+    -webkit-user-select: none;
+    -webkit-user-drag: none;
+    touch-action: none;
+}
