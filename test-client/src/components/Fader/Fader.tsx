@@ -1,6 +1,6 @@
 import {type FC, useRef} from "react";
 import s from "./Fader.module.css";
-import {dbToSlider, sliderToDb} from "../Channel/sliderMappingUtils.ts";
+import {dbToSlider, MAX_GAIN_DB, MIN_GAIN_DB, sliderToDb} from "../Channel/sliderMappingUtils.ts";
 
 interface FaderProps {
   value: number;
@@ -12,6 +12,14 @@ interface FaderProps {
 const Fader: FC<FaderProps> = ({value, onCommit, onChange, onDoubleClick}) => {
   const lastPointerDown = useRef(0);
   const trackRef = useRef<HTMLDivElement>(null);
+  const keyboardEditing = useRef(false);
+
+  const adjustByDb = (delta: number) => {
+    const currentDb = sliderToDb(value);
+    const nextDb = Math.max(MIN_GAIN_DB, Math.min(MAX_GAIN_DB, currentDb + delta));
+
+    onChange(dbToSlider(nextDb));
+  };
 
   const updatePointer = (clientY: number) => {
     const track = trackRef.current;
@@ -48,18 +56,29 @@ const Fader: FC<FaderProps> = ({value, onCommit, onChange, onDoubleClick}) => {
          }}
          onPointerCancel={onCommit}
          onKeyDown={(e) => {
-           const currentDb = sliderToDb(value);
-           const step = 0.5;
-
            if (e.key === "ArrowUp" || e.key === "ArrowRight") {
              e.preventDefault();
-             onChange(Math.min(1, dbToSlider(currentDb + step)));
-             onCommit();
+             keyboardEditing.current = true;
+             adjustByDb(0.5);
            }
 
            if (e.key === "ArrowDown" || e.key === "ArrowLeft") {
              e.preventDefault();
-             onChange(Math.max(0, dbToSlider(currentDb - step)));
+             keyboardEditing.current = true;
+             adjustByDb(-0.5);
+           }
+         }}
+         onKeyUp={(e) => {
+           if (e.key === "ArrowUp" || e.key === "ArrowRight" || e.key === "ArrowDown" || e.key === "ArrowLeft") {
+             if (keyboardEditing.current) {
+               keyboardEditing.current = false;
+               onCommit();
+             }
+           }
+         }}
+         onBlur={() => {
+           if (keyboardEditing.current) {
+             keyboardEditing.current = false;
              onCommit();
            }
          }}>
