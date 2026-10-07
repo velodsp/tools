@@ -65,6 +65,7 @@ const Channel: FC<ChannelProps> = ({channel, revision, setChannelGain, setChanne
         <button className={s.quickToggle}>L</button>
       </div>
       <div className={s.peq}>
+        <span className={s.eqSpan}>EQ</span>
         <svg viewBox={`0 0 96 72`}
              role={"img"} aria-label={`Frequency response`}
              preserveAspectRatio={"none"}>

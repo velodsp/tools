@@ -5,7 +5,7 @@
     gap: 10px;
     display: flex;
     flex-direction: column;
-    width: 96px;
+    width: 104px;
 }
 
 .controls {
@@ -26,7 +26,6 @@
     border-radius: 3px;
     width: 100%;
     padding: 8px 2em 8px 8px;
-    font: inherit;
     color: #d5d5d5;
 }
 
@@ -70,8 +69,8 @@
 
 .quickToggle {
     cursor: pointer;
-    font-size: 0.7rem;
-    padding: 2px 3px;
+    font-size: 0.8rem;
+    padding: 4px;
     text-align: center;
     width: 100%;
     background-color: #343434;
@@ -96,7 +95,7 @@
     -webkit-user-select: none;
     -webkit-user-drag: none;
     touch-action: none;
-    margin: 12px 0;
+    margin-block: 12px;
 }
 
 .dbScale {
@@ -135,6 +134,7 @@
     width: 100%;
     aspect-ratio: 2.5/2;
     background: #161616;
+    position: relative;
     overflow: hidden;
     border-radius: 4px;
     color: hsl(223 71% 50.1%);
@@ -149,9 +149,7 @@
 .gainInputWrapper {
     position: relative;
     display: inline-block;
-    font-family: inherit;
-    font-size: 0.8rem;
-    font-weight: 400;
+    font-size: 0.9rem;
     line-height: normal;
 }
 
@@ -162,5 +160,14 @@
     color: #a9a9a9;
     transform: translateY(-50%);
     pointer-events: none;
-    font: inherit;
+}
+
+.eqSpan {
+    position: absolute;
+    color: #a9a9a9;
+    opacity: 0.7;
+    font-size: 0.7rem;
+    top: 0;
+    left: 0;
+    padding: 3px;
 }

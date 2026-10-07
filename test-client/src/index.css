@@ -4,18 +4,8 @@
     padding: 0;
 }
 
-:root {
-    --sans: system-ui, 'Segoe UI', Roboto, sans-serif;
-    --heading: system-ui, 'Segoe UI', Roboto, sans-serif;
-    --mono: ui-monospace, Consolas, monospace;
-
-    font: 18px/145% var(--sans);
-    letter-spacing: 0.18px;
-    font-synthesis: none;
-    text-rendering: optimizeLegibility;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
-    line-height: 1.5;
+button, input, textarea {
+    font: inherit;
 }
 
 #root {
@@ -25,7 +15,6 @@
     min-height: 100svh;
     display: flex;
     flex-direction: column;
-    box-sizing: border-box;
     background-color: #151515;
     color: #ffffff;
 }

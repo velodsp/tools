@@ -26,8 +26,9 @@ const Fader: FC<FaderProps> = ({value, onCommit, onChange, onDoubleClick}) => {
     if (!track) return;
 
     const rect = track.getBoundingClientRect();
-    const normalized = 1 - (clientY - rect.top) / rect.height;
-    onChange(Math.max(0, Math.min(1, normalized)));
+    const clampedY = Math.max(rect.top, Math.min(rect.bottom, clientY));
+    const normalized = 1 - (clampedY - rect.top) / rect.height;
+    onChange(normalized);
   };
 
   return (
