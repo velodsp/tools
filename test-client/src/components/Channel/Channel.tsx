@@ -88,33 +88,36 @@ const Channel: FC<ChannelProps> = ({channel, revision, setChannelGain, setChanne
                }}/>
       </div>
       <div className={s.controls}>
-        <input className={classNames(s.gainInput, invalidGainInput && s.invalidGain)} type={"text"}
-               value={gainInputField ?? gain.toFixed(1)}
-               maxLength={5}
-               onChange={(e) => {
-                 setGainInputField(e.target.value);
-                 setInvalidGainInput(false);
-               }}
-               onKeyDown={(e) => {
-                 if (e.key === "Enter") {
-                   e.currentTarget.blur();
-                 }
-
-                 if (e.key === "Escape") {
-                   skipNextBlurCommit.current = true;
-                   setGainInputField(null);
+        <div className={s.gainInputWrapper}>
+          <input className={classNames(s.gainInput, invalidGainInput && s.invalidGain)} type={"text"}
+                 value={gainInputField ?? gain.toFixed(1)}
+                 maxLength={5}
+                 onChange={(e) => {
+                   setGainInputField(e.target.value);
                    setInvalidGainInput(false);
-                   e.currentTarget.blur();
-                 }
-               }}
-               onBlur={() => {
-                 if (skipNextBlurCommit.current) {
-                   skipNextBlurCommit.current = false;
-                   return;
-                 }
+                 }}
+                 onKeyDown={(e) => {
+                   if (e.key === "Enter") {
+                     e.currentTarget.blur();
+                   }
 
-                 commitGainInputField();
-               }}/>
+                   if (e.key === "Escape") {
+                     skipNextBlurCommit.current = true;
+                     setGainInputField(null);
+                     setInvalidGainInput(false);
+                     e.currentTarget.blur();
+                   }
+                 }}
+                 onBlur={() => {
+                   if (skipNextBlurCommit.current) {
+                     skipNextBlurCommit.current = false;
+                     return;
+                   }
+
+                   commitGainInputField();
+                 }}/>
+          <span className={s.gainUnit}>dB</span>
+        </div>
         <button aria-pressed={muted} onClick={toggleMuted}
                 className={classNames(s.muteButton, muted && s.muted)}>Mute
         </button>
