@@ -27,7 +27,7 @@
 .channels {
     margin: 10px;
     display: flex;
-    gap: 10px;
+    gap: 5px;
 }
 
 .spacing {

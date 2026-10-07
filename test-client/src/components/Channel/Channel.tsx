@@ -7,6 +7,7 @@ import {useGainControl} from "./useGainControl.ts";
 import {useToggleControl} from "./useToggleControl.ts";
 import {parseDbInput} from "./parseUtils.ts";
 import Fader from "../Fader/Fader.tsx";
+import EqPreview from "../EqGraphSvg/EqPreview.tsx";
 
 interface ChannelProps {
   channel: DspInput | DspOutput;
@@ -62,6 +63,13 @@ const Channel: FC<ChannelProps> = ({channel, revision, setChannelGain, setChanne
         <button className={s.quickToggle}>G</button>
         <button className={s.quickToggle}>C</button>
         <button className={s.quickToggle}>L</button>
+      </div>
+      <div className={s.peq}>
+        <svg viewBox={`0 0 96 72`}
+             role={"img"} aria-label={`Frequency response`}
+             preserveAspectRatio={"none"}>
+          <EqPreview peq={channel.peq}/>
+        </svg>
       </div>
       <div className={s.levelContainer}>
         <div className={s.dbScale}>
