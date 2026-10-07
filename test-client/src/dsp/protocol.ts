@@ -86,6 +86,17 @@ export interface SetChannelMutedRequest extends ChannelTarget {
   muted: boolean;
 }
 
+export interface ChannelPeqEnabledChange extends ChannelTarget {
+  type: "channel_peq_enabled";
+  enabled: boolean;
+}
+
+export interface SetChannelPeqEnabledRequest extends ChannelTarget {
+  type: "set_channel_peq_enabled";
+  id: number;
+  enabled: boolean;
+}
+
 export interface PresetModifiedChange {
   type: "preset_modified";
   value: boolean;
@@ -94,7 +105,8 @@ export interface PresetModifiedChange {
 export type DspStateChange =
   | ChannelGainChange
   | ChannelMutedChange
-  | PresetModifiedChange;
+  | PresetModifiedChange
+  | ChannelPeqEnabledChange;
 
 export interface StateUpdateMessage {
   type: "state_update";
@@ -104,7 +116,8 @@ export interface StateUpdateMessage {
 
 export type DspRequest =
   | SetChannelGainRequest
-  | SetChannelMutedRequest;
+  | SetChannelMutedRequest
+  | SetChannelPeqEnabledRequest;
 
 export type DspResponse =
   | OkResponse

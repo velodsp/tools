@@ -7,7 +7,7 @@ import {inputTarget, outputTarget} from "./dsp/protocol.ts";
 const host = import.meta.env.VITE_VELODSP_HOST;
 
 function App() {
-  const {connected, hello, state, revision, setChannelGain, setChannelMuted} = useDspClient(`ws://${host}/ws`);
+  const {connected, hello, state, revision, setChannelGain, setChannelMuted, setChannelPeqEnabled} = useDspClient(`ws://${host}/ws`);
 
   return (
     <div>
@@ -25,14 +25,16 @@ function App() {
               <Channel revision={revision}
                        channel={c} key={`i` + i}
                        setChannelGain={(gainDb: number) => setChannelGain(inputTarget(i), gainDb)}
-                       setChannelMuted={(muted: boolean) => setChannelMuted(inputTarget(i), muted)}/>
+                       setChannelMuted={(muted: boolean) => setChannelMuted(inputTarget(i), muted)}
+                       setChannelPeqEnabled={(enabled: boolean) => setChannelPeqEnabled(inputTarget(i), enabled)}/>
             )}
             <div className={s.spacing}></div>
             {state.dsp.outputs.map((c, i) =>
               <Channel revision={revision}
                        channel={c} key={`o` + i}
                        setChannelGain={(gainDb: number) => setChannelGain(outputTarget(i), gainDb)}
-                       setChannelMuted={(muted: boolean) => setChannelMuted(outputTarget(i), muted)}/>
+                       setChannelMuted={(muted: boolean) => setChannelMuted(outputTarget(i), muted)}
+                       setChannelPeqEnabled={(enabled: boolean) => setChannelPeqEnabled(outputTarget(i), enabled)}/>
             )}
           </div>
       }

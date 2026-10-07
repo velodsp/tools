@@ -15,11 +15,12 @@ interface ChannelProps {
 
   setChannelGain: (gainDb: number) => Promise<number>;
   setChannelMuted: (muted: boolean) => Promise<number>;
+  setChannelPeqEnabled: (enabled: boolean) => Promise<number>;
 }
 
 const dbMarkers = [10, 5, 0, -5, -10, -20, -40, -70];
 
-const Channel: FC<ChannelProps> = ({channel, revision, setChannelGain, setChannelMuted}) => {
+const Channel: FC<ChannelProps> = ({channel, revision, setChannelGain, setChannelMuted, setChannelPeqEnabled}) => {
   const {gain, updateGain, flushGain} = useGainControl({
     authoritativeGainDb: channel.gain_db,
     revision,
@@ -29,6 +30,11 @@ const Channel: FC<ChannelProps> = ({channel, revision, setChannelGain, setChanne
     authoritativeToggled: channel.muted,
     revision,
     setToggled: setChannelMuted
+  });
+  const {toggled: peqEnabled, toggle: togglePeqEnabled} = useToggleControl({
+    authoritativeToggled: channel.peq.enabled,
+    revision,
+    setToggled: setChannelPeqEnabled
   });
   const [gainInputField, setGainInputField] = useState<string | null>(null);
   const [invalidGainInput, setInvalidGainInput] = useState<boolean>(false);
@@ -59,13 +65,14 @@ const Channel: FC<ChannelProps> = ({channel, revision, setChannelGain, setChanne
   return (
     <div className={s.channel}>
       <div className={s.quickToggles}>
-        <button className={classNames(s.quickToggle, channel.peq.enabled && s.quickToggleEnabled)}>EQ</button>
+        <button className={classNames(s.quickToggle, peqEnabled && s.quickToggleEnabled)}
+        onClick={() => togglePeqEnabled()}>EQ</button>
         <button className={s.quickToggle}>G</button>
         <button className={s.quickToggle}>C</button>
         <button className={s.quickToggle}>L</button>
       </div>
-      <div className={s.peq}>
-        <span className={s.eqSpan}>EQ</span>
+      <div className={classNames(s.peq, peqEnabled && s.peqEnabled)}>
+        <span className={s.eqSpan}>EQ{!peqEnabled && " (Off)"}</span>
         <svg viewBox={`0 0 96 72`}
              role={"img"} aria-label={`Frequency response`}
              preserveAspectRatio={"none"}>

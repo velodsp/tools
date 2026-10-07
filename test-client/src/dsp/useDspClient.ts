@@ -205,6 +205,12 @@ export const useDspClient = (url: string) => {
             muted: change.muted
           }));
           break;
+        case "channel_peq_enabled":
+          next = updateChannel(next, change, channel => ({
+            ...channel,
+            peq: {...channel.peq, enabled: change.enabled}
+          }));
+          break;
         case "preset_modified": {
           next = {
             ...next,
@@ -300,6 +306,16 @@ export const useDspClient = (url: string) => {
     return response.revision;
   }, [request]);
 
+  const setChannelPeqEnabled = useCallback(async (target: ChannelTarget, enabled: boolean) => {
+    const response = await request<OkResponse>({
+      type: "set_channel_peq_enabled",
+      ...target,
+      enabled
+    });
+
+    return response.revision;
+  }, [request]);
+
   return {
     connected: websocket.connected,
 
@@ -308,6 +324,7 @@ export const useDspClient = (url: string) => {
     revision: authoritative?.revision ?? null,
 
     setChannelGain,
-    setChannelMuted
+    setChannelMuted,
+    setChannelPeqEnabled
   };
 };
