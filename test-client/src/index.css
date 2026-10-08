@@ -4,17 +4,14 @@
     padding: 0;
 }
 
-button, input, textarea {
-    font: inherit;
-}
-
+html,
+body,
 #root {
     width: 100%;
-    margin: 0 auto;
-    text-align: center;
-    min-height: 100svh;
-    display: flex;
-    flex-direction: column;
-    background-color: #151515;
-    color: #ffffff;
+    height: 100%;
+    overflow: hidden;
+}
+
+button, input, textarea {
+    font: inherit;
 }
