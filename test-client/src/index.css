@@ -15,3 +15,7 @@ body,
 button, input, textarea {
     font: inherit;
 }
+
+.pagePadding {
+    padding: 10px;
+}
