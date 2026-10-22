@@ -18,6 +18,7 @@ const Overview: FC<OverviewProps> = ({state, revision, setChannelMuted, setChann
           <div className={s.channels}>
             {state.dsp.inputs.map((c, i) =>
               <Channel revision={revision}
+                       label={"In-" + (i + 1)}
                        channel={c} key={`i` + i}
                        setChannelGain={(gainDb: number) => setChannelGain(inputTarget(i), gainDb)}
                        setChannelMuted={(muted: boolean) => setChannelMuted(inputTarget(i), muted)}
@@ -26,6 +27,7 @@ const Overview: FC<OverviewProps> = ({state, revision, setChannelMuted, setChann
               <div className={s.spacing}></div>
             {state.dsp.outputs.map((c, i) =>
               <Channel revision={revision}
+                       label={"Out-" + (i + 1)}
                        channel={c} key={`o` + i}
                        setChannelGain={(gainDb: number) => setChannelGain(outputTarget(i), gainDb)}
                        setChannelMuted={(muted: boolean) => setChannelMuted(outputTarget(i), muted)}

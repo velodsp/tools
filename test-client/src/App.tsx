@@ -1,9 +1,8 @@
 import s from "./App.module.css";
-import classNames from "classnames";
 import {useDspClient} from "./dsp/useDspClient.ts";
-import Sidebar from "./components/Sidebar/Sidebar.tsx";
 import {HashRouter, Route, Routes} from "react-router";
 import Overview from "./components/Overview/Overview.tsx";
+import Header from "./components/Header/Header.tsx";
 
 const host = import.meta.env.VITE_VELODSP_HOST;
 
@@ -20,16 +19,8 @@ function App() {
 
   return (
     <div className={s.parent}>
-      <div className={s.header}>
-        <div
-          className={classNames(s.status, connected && s.connected)}>{connected ? "Connected" : "Not connected"}</div>
-        {hello && connected && <>
-            <div>Firmware: {hello?.firmware_version}</div>
-            <div>Protocol Version: {hello?.protocol_version}</div>
-        </>}
-      </div>
+      <Header connected={connected} hello={hello}/>
       <div className={s.container}>
-        <Sidebar/>
         <div className={s.content}>
           <HashRouter>
             <Routes>

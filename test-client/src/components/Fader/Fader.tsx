@@ -14,6 +14,9 @@ const Fader: FC<FaderProps> = ({value, onCommit, onChange, onDoubleClick}) => {
   const trackRef = useRef<HTMLDivElement>(null);
   const keyboardEditing = useRef(false);
 
+  const dragStartY = useRef(0);
+  const dragStartValue = useRef(0);
+
   const adjustByDb = (delta: number) => {
     const currentDb = sliderToDb(value);
     const nextDb = Math.max(MIN_GAIN_DB, Math.min(MAX_GAIN_DB, currentDb + delta));
@@ -26,9 +29,12 @@ const Fader: FC<FaderProps> = ({value, onCommit, onChange, onDoubleClick}) => {
     if (!track) return;
 
     const rect = track.getBoundingClientRect();
-    const clampedY = Math.max(rect.top, Math.min(rect.bottom, clientY));
-    const normalized = 1 - (clampedY - rect.top) / rect.height;
-    onChange(normalized);
+
+    const deltaY = dragStartY.current - clientY;
+    const deltaValue = deltaY / rect.height;
+
+    const nextValue = Math.max(0, Math.min(1, dragStartValue.current + deltaValue));
+    onChange(nextValue);
   };
 
   return (
@@ -43,6 +49,9 @@ const Fader: FC<FaderProps> = ({value, onCommit, onChange, onDoubleClick}) => {
              onDoubleClick?.();
              return;
            }
+
+           dragStartY.current = e.clientY;
+           dragStartValue.current = value;
 
            e.currentTarget.setPointerCapture(e.pointerId);
            updatePointer(e.clientY);

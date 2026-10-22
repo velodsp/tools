@@ -16,11 +16,12 @@ interface ChannelProps {
   setChannelGain: (gainDb: number) => Promise<number>;
   setChannelMuted: (muted: boolean) => Promise<number>;
   setChannelPeqEnabled: (enabled: boolean) => Promise<number>;
+  label: string;
 }
 
 const dbMarkers = [10, 5, 0, -5, -10, -20, -40, -70];
 
-const Channel: FC<ChannelProps> = ({channel, revision, setChannelGain, setChannelMuted, setChannelPeqEnabled}) => {
+const Channel: FC<ChannelProps> = ({label, channel, revision, setChannelGain, setChannelMuted, setChannelPeqEnabled}) => {
   const {gain, updateGain, flushGain} = useGainControl({
     authoritativeGainDb: channel.gain_db,
     revision,
@@ -64,6 +65,7 @@ const Channel: FC<ChannelProps> = ({channel, revision, setChannelGain, setChanne
 
   return (
     <div className={s.channel}>
+      <p className={s.label}>{label}</p>
       <div className={s.quickToggles}>
         <button className={classNames(s.quickToggle, peqEnabled && s.quickToggleEnabled)}
         onClick={() => togglePeqEnabled()}>EQ</button>
@@ -84,7 +86,7 @@ const Channel: FC<ChannelProps> = ({channel, revision, setChannelGain, setChanne
           {dbMarkers.map((db) => (
             <div key={db} className={s.dbMarker} style={{bottom: `${dbToSlider(db) * 100}%`}}>
               <span className={s.dbLabel}>{db}</span>
-              <span className={s.dbTick}/>
+              <span className={s.dbTick} style={{...(db === 0 && {background: "white"})}}/>
             </div>
           ))}
         </div>
@@ -98,7 +100,7 @@ const Channel: FC<ChannelProps> = ({channel, revision, setChannelGain, setChanne
       <div className={s.controls}>
         <div className={s.gainInputWrapper}>
           <input className={classNames(s.gainInput, invalidGainInput && s.invalidGain)} type={"text"}
-                 value={gainInputField ?? gain.toFixed(1)}
+                 value={gainInputField ?? `${(Math.trunc(gain * 10) / 10 <= 0 ? "" : "+")}${gain.toFixed(1)}`}
                  maxLength={5}
                  onChange={(e) => {
                    setGainInputField(e.target.value);
@@ -127,7 +129,7 @@ const Channel: FC<ChannelProps> = ({channel, revision, setChannelGain, setChanne
           <span className={s.gainUnit}>dB</span>
         </div>
         <button aria-pressed={muted} onClick={toggleMuted}
-                className={classNames(s.muteButton, muted && s.muted)}>Mute
+                className={classNames(s.muteButton, muted && s.muted)}>MUTE
         </button>
       </div>
     </div>

@@ -8,6 +8,13 @@
     width: 104px;
 }
 
+.label {
+    font-size: 0.9rem;
+    text-align: center;
+    color: #d5d5d5;
+    padding: 4px 0;
+}
+
 .controls {
     display: flex;
     flex-direction: column;
@@ -40,7 +47,7 @@
     padding: 10px 0;
     font-size: 0.9rem;
     width: 100%;
-    background-color: #404040;
+    background-color: #592828;
     color: #d5d5d5;
     cursor: pointer;
 }
@@ -53,7 +60,7 @@
 
 .muted {
     color: white;
-    background-color: #a52f2f;
+    background-color: #e52929;
 }
 
 .invalidGain {
@@ -114,10 +121,10 @@
 
 .dbMarker {
     position: absolute;
-    right: -6px;
+    right: -5px;
     display: flex;
     align-items: center;
-    gap: 6px;
+    gap: 7px;
     transform: translateY(50%);
 }
 
@@ -132,7 +139,7 @@
 }
 
 .dbTick {
-    width: 5px;
+    width: 6px;
     height: 2px;
     background: #777;
 }
