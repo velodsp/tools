@@ -27,6 +27,7 @@
 
 .channelEdit:active {
     transition: 0s;
+    transform: scale(0.98);
     filter: brightness(0.8);
 }
 

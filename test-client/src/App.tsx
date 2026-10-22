@@ -3,6 +3,7 @@ import {useDspClient} from "./dsp/useDspClient.ts";
 import {Navigate, Route, Routes} from "react-router";
 import Overview from "./components/Overview/Overview.tsx";
 import Header from "./components/Header/Header.tsx";
+import ChannelView from "./components/ChannelView/ChannelView.tsx";
 
 const host = import.meta.env.VITE_VELODSP_HOST;
 
@@ -26,6 +27,7 @@ function App() {
             <Route path={"/overview"} element={<Overview state={state} revision={revision} setChannelMuted={setChannelMuted}
                                                  setChannelPeqEnabled={setChannelPeqEnabled}
                                                  setChannelGain={setChannelGain}/>}/>
+            <Route path={"/channel/:type/:number"} element={<ChannelView state={state} revision={revision}/>}/>
             <Route path={"/"} element={<Navigate to={"/overview"} replace={true}/>}/>
           </Routes>
         </div>

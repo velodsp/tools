@@ -18,20 +18,22 @@ const Overview: FC<OverviewProps> = ({state, revision, setChannelMuted, setChann
           <div className={s.channels}>
             {state.dsp.inputs.map((c, i) =>
               <Channel revision={revision}
-                       label={"In-" + (i + 1)}
                        channel={c} key={`i` + i}
                        setChannelGain={(gainDb: number) => setChannelGain(inputTarget(i), gainDb)}
                        setChannelMuted={(muted: boolean) => setChannelMuted(inputTarget(i), muted)}
-                       setChannelPeqEnabled={(enabled: boolean) => setChannelPeqEnabled(inputTarget(i), enabled)}/>
+                       setChannelPeqEnabled={(enabled: boolean) => setChannelPeqEnabled(inputTarget(i), enabled)}
+                       chType={"input"}
+                       chNumber={i + 1}/>
             )}
               <div className={s.spacing}></div>
             {state.dsp.outputs.map((c, i) =>
               <Channel revision={revision}
-                       label={"Out-" + (i + 1)}
                        channel={c} key={`o` + i}
                        setChannelGain={(gainDb: number) => setChannelGain(outputTarget(i), gainDb)}
                        setChannelMuted={(muted: boolean) => setChannelMuted(outputTarget(i), muted)}
-                       setChannelPeqEnabled={(enabled: boolean) => setChannelPeqEnabled(outputTarget(i), enabled)}/>
+                       setChannelPeqEnabled={(enabled: boolean) => setChannelPeqEnabled(outputTarget(i), enabled)}
+                       chType={"output"}
+                       chNumber={i + 1}/>
             )}
           </div>
       }

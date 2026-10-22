@@ -8,6 +8,7 @@ import {useToggleControl} from "./useToggleControl.ts";
 import {parseDbInput} from "./parseUtils.ts";
 import Fader from "../Fader/Fader.tsx";
 import EqPreview from "../EqGraphSvg/EqPreview.tsx";
+import {useNavigate} from "react-router";
 
 interface ChannelProps {
   channel: DspInput | DspOutput;
@@ -16,12 +17,22 @@ interface ChannelProps {
   setChannelGain: (gainDb: number) => Promise<number>;
   setChannelMuted: (muted: boolean) => Promise<number>;
   setChannelPeqEnabled: (enabled: boolean) => Promise<number>;
-  label: string;
+  chType: "input" | "output";
+  chNumber: number;
 }
 
 const dbMarkers = [10, 5, 0, -5, -10, -20, -40, -70];
 
-const Channel: FC<ChannelProps> = ({label, channel, revision, setChannelGain, setChannelMuted, setChannelPeqEnabled}) => {
+const Channel: FC<ChannelProps> = ({
+                                     chType,
+                                     chNumber,
+                                     channel,
+                                     revision,
+                                     setChannelGain,
+                                     setChannelMuted,
+                                     setChannelPeqEnabled
+                                   }) => {
+  const navigate = useNavigate();
   const {gain, updateGain, flushGain} = useGainControl({
     authoritativeGainDb: channel.gain_db,
     revision,
@@ -65,10 +76,14 @@ const Channel: FC<ChannelProps> = ({label, channel, revision, setChannelGain, se
 
   return (
     <div className={s.channel}>
-      <button className={s.channelEdit}>{label}</button>
+      <button className={s.channelEdit}
+              onClick={() => navigate(`/channel/${chType}/${chNumber}`)}>
+        {(chType === "input" ? "In" : "Out") + "-" + chNumber}
+      </button>
       <div className={s.quickToggles}>
         <button className={classNames(s.quickToggle, peqEnabled && s.quickToggleEnabled)}
-        onClick={() => togglePeqEnabled()}>EQ</button>
+                onClick={() => togglePeqEnabled()}>EQ
+        </button>
         <button className={s.quickToggle}>G</button>
         <button className={s.quickToggle}>C</button>
         <button className={s.quickToggle}>L</button>
