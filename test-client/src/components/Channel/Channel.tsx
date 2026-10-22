@@ -65,7 +65,7 @@ const Channel: FC<ChannelProps> = ({label, channel, revision, setChannelGain, se
 
   return (
     <div className={s.channel}>
-      <p className={s.label}>{label}</p>
+      <button className={s.channelEdit}>{label}</button>
       <div className={s.quickToggles}>
         <button className={classNames(s.quickToggle, peqEnabled && s.quickToggleEnabled)}
         onClick={() => togglePeqEnabled()}>EQ</button>

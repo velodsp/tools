@@ -8,6 +8,8 @@
 .connected {
     background-color: hsl(223 71% 50.1%);
     border: none;
+    user-select: none;
+    -webkit-user-drag: none;
 }
 
 .header {
@@ -15,6 +17,43 @@
     background-color: #000000;
     display: flex;
     align-items: center;
+    justify-content: space-between;
     padding: 10px;
+}
+
+.pages {
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    gap: 12px;
+}
+
+.connectionInfo {
+    margin-right: 10px;
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
     gap: 30px;
+}
+
+.pageBtn {
+    color: #b0b0b0;
+    padding: 12px;
+    border: none;
+    border-radius: 8px;
+    background: none;
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    gap: 5px;
+    transition: 0.1s;
+}
+
+.pageBtn:hover {
+    filter: brightness(1.2);
+}
+
+.pageBtnActive {
+    color: #ffffff;
+    background: #2b2b2b;
 }

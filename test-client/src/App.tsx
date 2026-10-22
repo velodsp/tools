@@ -1,6 +1,6 @@
 import s from "./App.module.css";
 import {useDspClient} from "./dsp/useDspClient.ts";
-import {HashRouter, Route, Routes} from "react-router";
+import {Navigate, Route, Routes} from "react-router";
 import Overview from "./components/Overview/Overview.tsx";
 import Header from "./components/Header/Header.tsx";
 
@@ -22,13 +22,12 @@ function App() {
       <Header connected={connected} hello={hello}/>
       <div className={s.container}>
         <div className={s.content}>
-          <HashRouter>
-            <Routes>
-              <Route path={"/"} element={<Overview state={state} revision={revision} setChannelMuted={setChannelMuted}
-                                                   setChannelPeqEnabled={setChannelPeqEnabled}
-                                                   setChannelGain={setChannelGain}/>}/>
-            </Routes>
-          </HashRouter>
+          <Routes>
+            <Route path={"/overview"} element={<Overview state={state} revision={revision} setChannelMuted={setChannelMuted}
+                                                 setChannelPeqEnabled={setChannelPeqEnabled}
+                                                 setChannelGain={setChannelGain}/>}/>
+            <Route path={"/"} element={<Navigate to={"/overview"} replace={true}/>}/>
+          </Routes>
         </div>
       </div>
     </div>

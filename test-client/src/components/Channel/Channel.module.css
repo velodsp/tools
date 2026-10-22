@@ -8,11 +8,26 @@
     width: 104px;
 }
 
-.label {
+.channelEdit {
     font-size: 0.9rem;
     text-align: center;
-    color: #d5d5d5;
-    padding: 4px 0;
+    cursor: pointer;
+    background-color: #5a5a5a;
+    padding: 8px 0;
+    border: none;
+    border-radius: 4px;
+    color: #ffffff;
+    font-weight: 400;
+    transition: 0.1s;
+}
+
+.channelEdit:hover {
+    filter: brightness(1.1);
+}
+
+.channelEdit:active {
+    transition: 0s;
+    filter: brightness(0.8);
 }
 
 .controls {
