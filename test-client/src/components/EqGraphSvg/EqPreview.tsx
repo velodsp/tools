@@ -1,6 +1,6 @@
 import {type FC, useMemo} from "react";
 import type {Peq} from "../../dsp/protocol.ts";
-import {combinedResponseDb, createLogFrequencies, dbToY, frequencyToX} from "../../utils/eqUtils.ts";
+import {combinedResponseDb, createLogFrequencies, dbToY, frequencyToX, SAMPLE_RATE} from "../../utils/eqUtils.ts";
 
 
 const MIN_HZ = 10;
@@ -9,8 +9,6 @@ const MAX_HZ = 20_000;
 const DEFAULT_MAX_ABS_DB = 16;
 const MIN_DB = -DEFAULT_MAX_ABS_DB;
 const MAX_DB = DEFAULT_MAX_ABS_DB;
-
-const SAMPLE_RATE = 48_000;
 
 interface EqGraphProps {
   peq: Peq;

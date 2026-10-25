@@ -1,0 +1,46 @@
+.eqOverview {
+    position: relative;
+    user-select: none;
+}
+
+.controls {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+
+    position: absolute;
+    top: 1.3rem;
+    line-height: 0;
+    left: 0;
+    right: 1.8rem;
+
+    color: white;
+}
+
+.channel svg {
+    width: 1em;
+    height: 1em;
+    font-size: 1.2rem;
+    flex-shrink: 0;
+}
+
+.zoom {
+    display: flex;
+    align-items: center;
+
+    gap: 4px;
+    font-size: 1rem;
+
+    color: #cfcfcf;
+    text-decoration: underline;
+    cursor: pointer;
+}
+
+.zoom p {
+    font-size: 1rem;
+    margin-bottom: 2px;
+}
+
+.channelDisabled {
+    filter: brightness(70%) saturate(60%);
+}

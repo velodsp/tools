@@ -1,0 +1,155 @@
+.layout {
+    display: grid;
+    gap: 1rem;
+}
+
+.header {
+    width: 100%;
+}
+
+.middle {
+    display: flex;
+    align-items: start;
+    gap: 1rem;
+    padding: 1rem;
+}
+
+.bands {
+    flex: 0 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+}
+
+.peqGraph {
+    background-color: #111111;
+    border-radius: 10px;
+    flex: 1 1 0;
+    min-width: 0;
+    color: hsl(216 80% 60%);
+}
+
+.channelSummary {
+    width: 300px;
+}
+
+.bandRow {
+    display: flex;
+    justify-content: center;
+    gap: 0.3rem;
+    align-items: center;
+}
+
+.bandInput {
+    padding: 0.5rem 1.5rem 0.5rem 0.5rem;
+    text-align: center;
+    background-color: #2b2b2b;
+    color: #d3d3d3;
+    border-radius: 3px;
+    border: none;
+    user-select: none;
+    -webkit-user-drag: none;
+}
+
+.bandInput:focus {
+    outline: 1px solid white;
+    color: white;
+}
+
+.bandInput,
+.bandNo p,
+.bandEnable,
+.bandRow {
+    font: inherit;
+    line-height: 1.2;
+    font-size: 0.9rem;
+}
+
+.bandNo {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    flex: 0 0 auto;
+    width: calc(1lh + 1.1rem);
+    height: calc(1lh + 1.1rem);
+
+    background-color: #4d4d4d;
+    border-radius: 4px;
+    color: white;
+    user-select: none;
+    -webkit-user-drag: none;
+}
+
+.bandNo p {
+    margin: 0;
+}
+
+.bandEnable {
+    user-select: none;
+    padding: 0.5rem;
+    background-color: #2b2b2b;
+    border-radius: 4px;
+    border: 2px solid hsl(0 0% 30%);
+    color: #d7d7d7;
+    cursor: pointer;
+    width: 6ch;
+}
+
+.bandEnabled {
+    border: 2px solid hsl(216 80% 60%);
+    color: white;
+    background-color: #343434;
+}
+
+.bandDisabled input, .bandDisabled .bandNo, .bandDisabled .unit {
+    filter: brightness(0.3) contrast(0.8);
+}
+
+.inputWrapper {
+    position: relative;
+    display: inline-block;
+    font-size: 0.9rem;
+    line-height: normal;
+    user-select: none;
+    -webkit-user-drag: none;
+}
+
+.unit {
+    position: absolute;
+    right: 0.5em;
+    top: 50%;
+    color: #9f9f9f;
+    transform: translateY(-50%);
+    pointer-events: none;
+    user-select: none;
+}
+
+.bandFreq {
+    width: 10ch;
+}
+
+.bandQ, .bandQInput {
+    width: 7ch;
+}
+
+.bandGain {
+    width: 10ch;
+}
+
+.bandQInput {
+    padding: 0.5rem;
+}
+
+.bandHeader {
+    text-align: center;
+    justify-content: flex-start;
+    color: white;
+    padding: 0.2rem 0;
+    font-weight: 500;
+    user-select: none;
+}
+
+.bandNoHeader {
+    width: 4ch;
+}

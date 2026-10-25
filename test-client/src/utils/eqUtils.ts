@@ -1,5 +1,7 @@
 import type {PeqBand} from "../dsp/protocol.ts";
 
+export const SAMPLE_RATE = 48_000;
+
 export function frequencyToX(frequencyHz: number, minHz: number, maxHz: number, width: number) {
   const minLog = Math.log10(minHz);
   const maxLog = Math.log10(maxHz);
