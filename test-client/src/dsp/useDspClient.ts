@@ -211,6 +211,12 @@ export const useDspClient = (url: string) => {
             peq: {...channel.peq, enabled: change.enabled}
           }));
           break;
+        case "channel_peq_band_changed":
+          next = updateChannel(next, change, channel => ({
+            ...channel,
+            peq: {...channel.peq, bands: channel.peq.bands.map((b, i) => i === change.band ? change.value : b)}
+          }));
+          break;
         case "preset_modified": {
           next = {
             ...next,

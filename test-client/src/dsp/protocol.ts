@@ -1,5 +1,8 @@
 export type ChannelType = "input" | "output";
 
+export type FilterType =
+  | "peak";
+
 export interface ChannelTarget {
   channel_type: ChannelType;
   channel: number;
@@ -10,7 +13,7 @@ export interface PeqBand {
   frequency_hz: number;
   gain_db: number;
   q: number;
-  type: "peak";
+  type: FilterType;
 }
 
 export interface Peq {
@@ -97,6 +100,18 @@ export interface SetChannelPeqEnabledRequest extends ChannelTarget {
   enabled: boolean;
 }
 
+export interface ChannelPeqBandChange extends ChannelTarget {
+  type: "channel_peq_band_changed";
+  band: number;
+  value: {
+    enabled: boolean;
+    frequency_hz: number;
+    q: number;
+    gain_db: number;
+    type: FilterType;
+  };
+}
+
 export interface PresetModifiedChange {
   type: "preset_modified";
   value: boolean;
@@ -106,7 +121,8 @@ export type DspStateChange =
   | ChannelGainChange
   | ChannelMutedChange
   | PresetModifiedChange
-  | ChannelPeqEnabledChange;
+  | ChannelPeqEnabledChange
+  | ChannelPeqBandChange;
 
 export interface StateUpdateMessage {
   type: "state_update";
