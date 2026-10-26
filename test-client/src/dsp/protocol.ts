@@ -100,7 +100,7 @@ export interface SetChannelPeqEnabledRequest extends ChannelTarget {
   enabled: boolean;
 }
 
-export interface ChannelPeqBandChange extends ChannelTarget {
+export interface ChannelPeqBandChanged extends ChannelTarget {
   type: "channel_peq_band_changed";
   band: number;
   value: {
@@ -110,6 +110,23 @@ export interface ChannelPeqBandChange extends ChannelTarget {
     gain_db: number;
     type: FilterType;
   };
+}
+
+export interface ChannelPeqBandAdded extends ChannelTarget {
+  type: "channel_peq_band_added";
+  band: number;
+  value: {
+    enabled: boolean;
+    frequency_hz: number;
+    q: number;
+    gain_db: number;
+    type: FilterType;
+  };
+}
+
+export interface ChannelPeqBandDeleted extends ChannelTarget {
+  type: "channel_peq_band_deleted";
+  band: number;
 }
 
 export interface PresetModifiedChange {
@@ -122,7 +139,9 @@ export type DspStateChange =
   | ChannelMutedChange
   | PresetModifiedChange
   | ChannelPeqEnabledChange
-  | ChannelPeqBandChange;
+  | ChannelPeqBandChanged
+  | ChannelPeqBandAdded
+  | ChannelPeqBandDeleted;
 
 export interface StateUpdateMessage {
   type: "state_update";

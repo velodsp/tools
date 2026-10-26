@@ -217,6 +217,18 @@ export const useDspClient = (url: string) => {
             peq: {...channel.peq, bands: channel.peq.bands.map((b, i) => i === change.band ? change.value : b)}
           }));
           break;
+        case "channel_peq_band_added":
+          next = updateChannel(next, change, channel => ({
+            ...channel,
+            peq: {...channel.peq, bands: [...channel.peq.bands, change.value]}
+          }));
+          break;
+        case "channel_peq_band_deleted":
+          next = updateChannel(next, change, channel => ({
+            ...channel,
+            peq: {...channel.peq, bands: channel.peq.bands.filter((_, i) => i !== change.band)}
+          }));
+          break;
         case "preset_modified": {
           next = {
             ...next,
