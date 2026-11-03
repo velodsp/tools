@@ -1,4 +1,5 @@
 import type {
+  ChannelPeqBandPatch,
   ChannelTarget, DspInput,
   DspMessage, DspOutput,
   DspRequest,
@@ -334,6 +335,16 @@ export const useDspClient = (url: string) => {
     return response.revision;
   }, [request]);
 
+  const setChannelPeqBand = useCallback(async (patch: ChannelPeqBandPatch, band: number) => {
+    const response = await request<OkResponse>({
+      type: "set_channel_peq_band",
+      band,
+      ...patch
+    });
+
+    return response.revision;
+  }, [request]);
+
   return {
     connected: websocket.connected,
 
@@ -343,6 +354,7 @@ export const useDspClient = (url: string) => {
 
     setChannelGain,
     setChannelMuted,
-    setChannelPeqEnabled
+    setChannelPeqEnabled,
+    setChannelPeqBand
   };
 };

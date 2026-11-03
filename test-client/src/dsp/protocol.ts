@@ -112,6 +112,19 @@ export interface ChannelPeqBandChanged extends ChannelTarget {
   };
 }
 
+export interface ChannelPeqBandPatch extends ChannelTarget {
+  enabled?: boolean;
+  frequency_hz?: number;
+  q?: number;
+  gain_db?: number;
+  filter_type?: FilterType;
+}
+
+export interface SetChannelPeqBand extends ChannelPeqBandPatch {
+  type: "set_channel_peq_band";
+  band: number;
+}
+
 export interface ChannelPeqBandAdded extends ChannelTarget {
   type: "channel_peq_band_added";
   band: number;
@@ -152,7 +165,8 @@ export interface StateUpdateMessage {
 export type DspRequest =
   | SetChannelGainRequest
   | SetChannelMutedRequest
-  | SetChannelPeqEnabledRequest;
+  | SetChannelPeqEnabledRequest
+  | SetChannelPeqBand;
 
 export type DspResponse =
   | OkResponse

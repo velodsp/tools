@@ -15,7 +15,8 @@ function App() {
     revision,
     setChannelGain,
     setChannelMuted,
-    setChannelPeqEnabled
+    setChannelPeqEnabled,
+    setChannelPeqBand
   } = useDspClient(`ws://${host}/ws`);
 
   return (
@@ -27,7 +28,7 @@ function App() {
             <Route path={"/overview"} element={<Overview state={state} revision={revision} setChannelMuted={setChannelMuted}
                                                  setChannelPeqEnabled={setChannelPeqEnabled}
                                                  setChannelGain={setChannelGain}/>}/>
-            <Route path={"/channel/:type/:number"} element={<ChannelView state={state} revision={revision}/>}/>
+            <Route path={"/channel/:type/:number"} element={<ChannelView setChannelPeqBand={setChannelPeqBand} state={state} revision={revision}/>}/>
             <Route path={"/"} element={<Navigate to={"/overview"} replace={true}/>}/>
           </Routes>
         </div>

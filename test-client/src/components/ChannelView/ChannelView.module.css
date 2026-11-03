@@ -86,6 +86,7 @@
 }
 
 .bandEnable {
+    transition: 0.1s;
     user-select: none;
     padding: 0.5rem;
     background-color: #2b2b2b;
@@ -100,6 +101,12 @@
     border: 2px solid hsl(216 80% 60%);
     color: white;
     background-color: #343434;
+}
+
+.bandEnable:active {
+    transition: 0s;
+    transform: scale(0.95);
+    filter: brightness(0.75);
 }
 
 .bandDisabled input, .bandDisabled .bandNo, .bandDisabled .unit {

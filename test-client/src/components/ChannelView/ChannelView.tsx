@@ -1,16 +1,18 @@
 import {useParams} from "react-router";
-import type {DspInput, DspOutput, DspState} from "../../dsp/protocol.ts";
+import type {ChannelPeqBandPatch, DspInput, DspOutput, DspState} from "../../dsp/protocol.ts";
 import type {FC} from "react";
 import EqOverview from "../EqGraphSvg/EqOverview.tsx";
 import s from "./ChannelView.module.css";
 import classNames from "classnames";
+import PeqBandColumn from "./PeqBandColumn.tsx";
 
 interface ChannelViewProps {
   state: DspState | null;
   revision: number | null;
+  setChannelPeqBand: (patch: ChannelPeqBandPatch, band: number) => Promise<number>;
 }
 
-const ChannelView: FC<ChannelViewProps> = ({state, revision}) => {
+const ChannelView: FC<ChannelViewProps> = ({state, revision, setChannelPeqBand}) => {
   const {type: chType, number} = useParams();
   const chNumber = parseInt(number ?? "");
 
@@ -19,6 +21,7 @@ const ChannelView: FC<ChannelViewProps> = ({state, revision}) => {
   const channels: DspInput[] | DspOutput[] = chType === "input" ? state.dsp.inputs : state.dsp.outputs;
   const channel = channels[chNumber - 1];
   if (channel === undefined) return null;
+  const chIdx = chNumber - 1;
 
   return (
     <div className={s.layout}>
@@ -35,22 +38,7 @@ const ChannelView: FC<ChannelViewProps> = ({state, revision}) => {
           </div>
           {
             channel.peq.bands.map(((b, i) => (
-              <div key={i} className={classNames(s.bandRow, !b.enabled && s.bandDisabled)}>
-                <div className={s.bandNo}>
-                  <p>{i + 1}</p>
-                </div>
-                <div className={s.inputWrapper}>
-                  <input disabled={!b.enabled} className={classNames(s.bandInput, s.bandFreq)} value={b.frequency_hz}/>
-                  <span className={s.unit}>Hz</span>
-                </div>
-                <input disabled={!b.enabled} className={classNames(s.bandInput, s.bandQInput)} value={b.q}/>
-                <div className={s.inputWrapper}>
-                  <input disabled={!b.enabled} className={classNames(s.bandInput, s.bandGain)} value={b.gain_db}/>
-                  <span className={s.unit}>dB</span>
-                </div>
-                <button
-                  className={classNames(s.bandEnable, b.enabled && s.bandEnabled)}>{b.enabled ? "On" : "Off"}</button>
-              </div>
+              <PeqBandColumn key={i} band={b} idx={i} revision={revision} setChannelPeqBand={setChannelPeqBand} channel={chIdx} channel_type={chType}/>
             )))
           }
         </div>
