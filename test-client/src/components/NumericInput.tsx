@@ -12,6 +12,8 @@ interface NumericInputProps {
   unit?: string;
   maxLength?: number;
   wrapperClassName?: string;
+
+  disabled?: boolean;
 }
 
 const NumericInput: FC<NumericInputProps> = ({
@@ -21,7 +23,8 @@ const NumericInput: FC<NumericInputProps> = ({
                                                format,
                                                unit,
                                                maxLength,
-                                               wrapperClassName = ""
+                                               wrapperClassName = "",
+                                               disabled = false
                                              }) => {
   const [draft, setDraft] = useState<string | null>(null);
   const [invalid, setInvalid] = useState(false);
@@ -55,7 +58,7 @@ const NumericInput: FC<NumericInputProps> = ({
 
   return (
     <div className={classNames(s.gainInputWrapper, wrapperClassName)}>
-      <input className={classNames(s.gainInput, invalid && s.invalidGain)} type={"text"}
+      <input className={classNames(s.gainInput, invalid && s.invalidGain)} type={"text"} disabled={disabled}
              value={draft ?? format(value)}
              maxLength={maxLength}
              aria-invalid={invalid}

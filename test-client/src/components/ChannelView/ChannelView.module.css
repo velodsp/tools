@@ -111,6 +111,7 @@
 
 .bandDisabled input, .bandDisabled .bandNo, .bandDisabled span {
     filter: brightness(0.3) contrast(0.8);
+    pointer-events: none;
 }
 
 .inputWrapper {
@@ -141,11 +142,11 @@
 }
 
 .bandGain {
-    width: 10ch;
+    width: 9ch;
 }
 
-.bandQInput {
-    padding: 0.5rem;
+.bandQInput > input {
+    padding: 8px;
 }
 
 .bandHeader {
