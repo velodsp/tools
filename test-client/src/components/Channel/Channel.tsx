@@ -1,14 +1,15 @@
 import s from "./Channel.module.css";
-import {type FC, useEffect, useRef, useState} from "react";
+import {type FC} from "react";
 import type {DspInput, DspOutput} from "../../dsp/protocol.ts";
 import {dbToSlider, sliderToDb} from "./sliderMappingUtils.ts";
 import classNames from "classnames";
-import {useGainControl} from "./useGainControl.ts";
+import {useNumericControl} from "./useNumericControl.ts";
 import {useToggleControl} from "./useToggleControl.ts";
-import {parseDbInput} from "./parseUtils.ts";
+import {formatDb, parseDbInput} from "./parseUtils.ts";
 import Fader from "../Fader/Fader.tsx";
 import EqPreview from "../EqGraphSvg/EqPreview.tsx";
 import {useNavigate} from "react-router";
+import NumericInput from "../NumericInput.tsx";
 
 interface ChannelProps {
   channel: DspInput | DspOutput;
@@ -33,10 +34,11 @@ const Channel: FC<ChannelProps> = ({
                                      setChannelPeqEnabled
                                    }) => {
   const navigate = useNavigate();
-  const {gain, updateGain, flushGain} = useGainControl({
-    authoritativeGainDb: channel.gain_db,
+  const {value: gain, updateValue: updateGain, flushValue: flushGain} = useNumericControl({
+    authoritativeValue: channel.gain_db,
     revision,
-    setGain: setChannelGain
+    setValue: setChannelGain,
+    errorMessage: "Could not set gain"
   });
   const {toggled: muted, toggle: toggleMuted} = useToggleControl({
     authoritativeToggled: channel.muted,
@@ -48,31 +50,6 @@ const Channel: FC<ChannelProps> = ({
     revision,
     setToggled: setChannelPeqEnabled
   });
-  const [gainInputField, setGainInputField] = useState<string | null>(null);
-  const [invalidGainInput, setInvalidGainInput] = useState<boolean>(false);
-  const skipNextBlurCommit = useRef(false);
-
-  const commitGainInputField = () => {
-    if (gainInputField === null) return;
-
-    const dbParseResult = parseDbInput(gainInputField);
-
-    if (dbParseResult === null) {
-      setInvalidGainInput(true);
-      return;
-    }
-
-    setInvalidGainInput(false);
-    setGainInputField(null);
-
-    updateGain(dbParseResult);
-    void flushGain();
-  };
-
-  useEffect(() => {
-    setInvalidGainInput(false);
-    setGainInputField(null);
-  }, [gain]);
 
   return (
     <div className={s.channel}>
@@ -113,36 +90,7 @@ const Channel: FC<ChannelProps> = ({
                }}/>
       </div>
       <div className={s.controls}>
-        <div className={s.gainInputWrapper}>
-          <input className={classNames(s.gainInput, invalidGainInput && s.invalidGain)} type={"text"}
-                 value={gainInputField ?? `${(Math.trunc(gain * 10) / 10 <= 0 ? "" : "+")}${gain.toFixed(1)}`}
-                 maxLength={5}
-                 onChange={(e) => {
-                   setGainInputField(e.target.value);
-                   setInvalidGainInput(false);
-                 }}
-                 onKeyDown={(e) => {
-                   if (e.key === "Enter") {
-                     e.currentTarget.blur();
-                   }
-
-                   if (e.key === "Escape") {
-                     skipNextBlurCommit.current = true;
-                     setGainInputField(null);
-                     setInvalidGainInput(false);
-                     e.currentTarget.blur();
-                   }
-                 }}
-                 onBlur={() => {
-                   if (skipNextBlurCommit.current) {
-                     skipNextBlurCommit.current = false;
-                     return;
-                   }
-
-                   commitGainInputField();
-                 }}/>
-          <span className={s.gainUnit}>dB</span>
-        </div>
+        <NumericInput value={gain} onCommit={updateGain} parse={parseDbInput} format={formatDb} unit={"dB"} maxLength={5}/>
         <button aria-pressed={muted} onClick={toggleMuted}
                 className={classNames(s.muteButton, muted && s.muted)}>MUTE
         </button>

@@ -14,3 +14,7 @@ export function parseDbInput(input: string) {
 
   return Number.isFinite(value) ? value : null;
 }
+
+export function formatDb(gainDb: number) {
+  return `${(Math.trunc(gainDb * 10) / 10 <= 0 ? "" : "+")}${gainDb.toFixed(1)}`;
+}

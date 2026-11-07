@@ -69,13 +69,13 @@ const Fader: FC<FaderProps> = ({value, onCommit, onChange, onDoubleClick}) => {
            if (e.key === "ArrowUp" || e.key === "ArrowRight") {
              e.preventDefault();
              keyboardEditing.current = true;
-             adjustByDb(0.5);
+             adjustByDb(0.1);
            }
 
            if (e.key === "ArrowDown" || e.key === "ArrowLeft") {
              e.preventDefault();
              keyboardEditing.current = true;
-             adjustByDb(-0.5);
+             adjustByDb(-0.1);
            }
          }}
          onKeyUp={(e) => {
