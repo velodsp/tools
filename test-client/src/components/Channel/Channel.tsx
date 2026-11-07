@@ -1,7 +1,7 @@
 import s from "./Channel.module.css";
 import {type FC} from "react";
 import type {DspInput, DspOutput} from "../../dsp/protocol.ts";
-import {dbToSlider, sliderToDb} from "./sliderMappingUtils.ts";
+import {dbToSlider, MAX_CHANNEL_GAIN_DB, MIN_CHANNEL_GAIN_DB, sliderToDb} from "./sliderMappingUtils.ts";
 import classNames from "classnames";
 import {useNumericControl} from "./useNumericControl.ts";
 import {useToggleControl} from "./useToggleControl.ts";
@@ -90,7 +90,11 @@ const Channel: FC<ChannelProps> = ({
                }}/>
       </div>
       <div className={s.controls}>
-        <NumericInput value={gain} onCommit={updateGain} parse={parseDbInput} format={formatDb} unit={"dB"} maxLength={5}/>
+        <NumericInput value={gain} onCommit={(val) => {
+          updateGain(val);
+          void flushGain();
+        }} parse={(val) => parseDbInput(val, MIN_CHANNEL_GAIN_DB, MAX_CHANNEL_GAIN_DB)} format={formatDb} unit={"dB"}
+                      maxLength={5}/>
         <button aria-pressed={muted} onClick={toggleMuted}
                 className={classNames(s.muteButton, muted && s.muted)}>MUTE
         </button>

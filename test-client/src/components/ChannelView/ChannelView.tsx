@@ -5,6 +5,7 @@ import EqOverview from "../EqGraphSvg/EqOverview.tsx";
 import s from "./ChannelView.module.css";
 import classNames from "classnames";
 import PeqBandColumn from "./PeqBandColumn.tsx";
+import {useOptimisticPeq} from "./useOptimisticPeq.ts";
 
 interface ChannelViewProps {
   state: DspState | null;
@@ -12,16 +13,24 @@ interface ChannelViewProps {
   setChannelPeqBand: (patch: ChannelPeqBandPatch, band: number) => Promise<number>;
 }
 
-const ChannelView: FC<ChannelViewProps> = ({state, revision, setChannelPeqBand}) => {
+const ChannelView: FC<ChannelViewProps> = ({state, revision, setChannelPeqBand: _setChannelPeqBand}) => {
   const {type: chType, number} = useParams();
   const chNumber = parseInt(number ?? "");
 
   if (state === null || revision === null || isNaN(chNumber) || (chType !== "input" && chType !== "output")) return null;
 
   const channels: DspInput[] | DspOutput[] = chType === "input" ? state.dsp.inputs : state.dsp.outputs;
-  const channel = channels[chNumber - 1];
-  if (channel === undefined) return null;
+  const _channel = channels[chNumber - 1];
+  if (_channel === undefined) return null;
   const chIdx = chNumber - 1;
+
+  const { displayChannel, updateBand } = useOptimisticPeq({
+    channel: _channel,
+    channelIdx: chIdx,
+    channelType: chType,
+    revision,
+    setChannelPeqBand: _setChannelPeqBand
+  });
 
   return (
     <div className={s.layout}>
@@ -37,13 +46,13 @@ const ChannelView: FC<ChannelViewProps> = ({state, revision, setChannelPeqBand})
             <p className={s.bandGain}>Gain</p>
           </div>
           {
-            channel.peq.bands.map(((b, i) => (
-              <PeqBandColumn key={i} band={b} idx={i} revision={revision} setChannelPeqBand={setChannelPeqBand} channel={chIdx} channel_type={chType}/>
+            displayChannel.peq.bands.map(((b, i) => (
+              <PeqBandColumn key={i} band={b} idx={i} revision={revision} setChannelPeqBand={updateBand} channel={chIdx} channel_type={chType}/>
             )))
           }
         </div>
         <div className={s.peqGraph}>
-          <EqOverview channel={channel} chNumber={chNumber}/>
+          <EqOverview channel={displayChannel} chNumber={chNumber}/>
         </div>
         <div className={s.channelSummary}>
         </div>

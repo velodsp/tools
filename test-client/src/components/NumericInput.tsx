@@ -11,16 +11,17 @@ interface NumericInputProps {
 
   unit?: string;
   maxLength?: number;
-  className?: string;
+  wrapperClassName?: string;
 }
 
 const NumericInput: FC<NumericInputProps> = ({
-  value,
-  onCommit,
-  parse,
-  format,
-  unit,
-  maxLength
+                                               value,
+                                               onCommit,
+                                               parse,
+                                               format,
+                                               unit,
+                                               maxLength,
+                                               wrapperClassName = ""
                                              }) => {
   const [draft, setDraft] = useState<string | null>(null);
   const [invalid, setInvalid] = useState(false);
@@ -50,10 +51,10 @@ const NumericInput: FC<NumericInputProps> = ({
     skipNextBlurCommit.current = true;
     setDraft(null);
     setInvalid(false);
-  }
+  };
 
   return (
-    <div className={s.gainInputWrapper}>
+    <div className={classNames(s.gainInputWrapper, wrapperClassName)}>
       <input className={classNames(s.gainInput, invalid && s.invalidGain)} type={"text"}
              value={draft ?? format(value)}
              maxLength={maxLength}
@@ -80,7 +81,7 @@ const NumericInput: FC<NumericInputProps> = ({
 
                commit();
              }}/>
-      { unit && <span className={s.gainUnit}>{unit}</span>}
+      {unit && <span className={s.gainUnit}>{unit}</span>}
     </div>
   );
 };

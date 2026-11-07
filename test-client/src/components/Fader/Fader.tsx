@@ -1,6 +1,6 @@
 import {type FC, useRef} from "react";
 import s from "./Fader.module.css";
-import {dbToSlider, MAX_GAIN_DB, MIN_GAIN_DB, sliderToDb} from "../Channel/sliderMappingUtils.ts";
+import {dbToSlider, MAX_CHANNEL_GAIN_DB, MIN_CHANNEL_GAIN_DB, sliderToDb} from "../Channel/sliderMappingUtils.ts";
 
 interface FaderProps {
   value: number;
@@ -19,7 +19,7 @@ const Fader: FC<FaderProps> = ({value, onCommit, onChange, onDoubleClick}) => {
 
   const adjustByDb = (delta: number) => {
     const currentDb = sliderToDb(value);
-    const nextDb = Math.max(MIN_GAIN_DB, Math.min(MAX_GAIN_DB, currentDb + delta));
+    const nextDb = Math.max(MIN_CHANNEL_GAIN_DB, Math.min(MAX_CHANNEL_GAIN_DB, currentDb + delta));
 
     onChange(dbToSlider(nextDb));
   };

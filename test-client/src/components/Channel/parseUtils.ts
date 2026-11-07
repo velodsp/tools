@@ -1,6 +1,4 @@
-import {MAX_GAIN_DB, MIN_GAIN_DB} from "./sliderMappingUtils.ts";
-
-export function parseDbInput(input: string) {
+export function parseDbInput(input: string, minGainDb: number, maxGainDb: number) {
   const normalized = input.trim().replace(",", ".");
 
   if(!/^[+-]?(?:\d+(?:\.\d*)?|\.\d+)$/.test(normalized)) {
@@ -9,8 +7,8 @@ export function parseDbInput(input: string) {
 
   const value = Number(normalized);
 
-  if(value < MIN_GAIN_DB) return MIN_GAIN_DB;
-  if(value > MAX_GAIN_DB) return MAX_GAIN_DB;
+  if(value < minGainDb) return minGainDb;
+  if(value > maxGainDb) return maxGainDb;
 
   return Number.isFinite(value) ? value : null;
 }

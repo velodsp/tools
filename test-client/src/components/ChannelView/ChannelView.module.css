@@ -109,7 +109,7 @@
     filter: brightness(0.75);
 }
 
-.bandDisabled input, .bandDisabled .bandNo, .bandDisabled .unit {
+.bandDisabled input, .bandDisabled .bandNo, .bandDisabled span {
     filter: brightness(0.3) contrast(0.8);
 }
 
