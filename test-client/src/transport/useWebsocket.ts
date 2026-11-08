@@ -5,6 +5,10 @@ interface UseWebSocketOptions {
   onMessage?: (message: unknown) => void;
 }
 
+const CONNECT_TIMEOUT_MS = 3000;
+const INITIAL_RECONNECT_DELAY_MS = 1000;
+const MAX_RECONNECT_DELAY_MS = 10000;
+
 export const useWebSocket = (url: string, options: UseWebSocketOptions = {}) => {
   const [generation, setGeneration] = useState(0);
   const socketRef = useRef<WebSocket | null>(null);
@@ -18,74 +22,174 @@ export const useWebSocket = (url: string, options: UseWebSocketOptions = {}) => 
 
   useEffect(() => {
     let disposed = false;
+    let currentSocket: WebSocket | null = null;
 
-    const socket = new WebSocket(url);
-    socketRef.current = socket;
+    let connectTimeout: number | null = null;
+    let reconnectTimer: number | null = null;
 
-    const timeout = window.setTimeout(() => {
-      if (socket.readyState === WebSocket.CONNECTING) {
-        console.error("WebSocket connection timed out");
+    let reconnectAttempt = 0;
+    let reconnectToastId: string | undefined;
 
-        socket.close();
-
-        if (!disposed) {
-          toast.error("Could not connect to device. Make sure the correct IP is set inside .env.local.");
-        }
-      }
-    }, 3000);
-
-    socket.onopen = () => {
-      clearTimeout(timeout);
-
-      if (!disposed) {
-        setConnected(true);
+    const clearConnectTimeout = () => {
+      if (connectTimeout !== null) {
+        window.clearTimeout(connectTimeout);
+        connectTimeout = null;
       }
     };
 
-    socket.onclose = (event) => {
-      clearTimeout(timeout);
+    const notifyDisconnected = () => {
+      if (reconnectToastId === undefined) {
+        reconnectToastId = toast.error("Connection to DSP lost. Retrying...");
+      }
+    };
 
-      if (!disposed) {
+    function scheduleReconnect() {
+      if (disposed || reconnectTimer !== null) {
+        return;
+      }
+
+      const delay = Math.min(INITIAL_RECONNECT_DELAY_MS * 2 ** reconnectAttempt, MAX_RECONNECT_DELAY_MS);
+      reconnectAttempt++;
+      console.log(`WebSocket reconnecting in ${delay}ms`);
+
+      reconnectTimer = window.setTimeout(() => {
+        reconnectTimer = null;
+        connect();
+      }, delay);
+    }
+
+    function connect() {
+      if (disposed) {
+        return;
+      }
+
+      if (currentSocket !== null &&
+        (currentSocket.readyState === WebSocket.CONNECTING || currentSocket.readyState === WebSocket.OPEN)) {
+        return;
+      }
+
+      setConnected(false);
+
+      let socket: WebSocket;
+
+      try {
+        socket = new WebSocket(url);
+      } catch (err) {
+        console.error("Failed to create WebSocket", err);
+
+        notifyDisconnected();
+        scheduleReconnect();
+        return;
+      }
+
+      currentSocket = socket;
+      socketRef.current = socket;
+
+      connectTimeout = window.setTimeout(() => {
+        if (
+          !disposed &&
+          currentSocket === socket &&
+          socket.readyState === WebSocket.CONNECTING
+        ) {
+          console.error("WebSocket connection timed out");
+          notifyDisconnected();
+          socket.close();
+          scheduleReconnect();
+        }
+      }, CONNECT_TIMEOUT_MS);
+
+      socket.onopen = () => {
+        clearConnectTimeout();
+
+        if (disposed || currentSocket !== socket) {
+          return;
+        }
+
+        console.log("WebSocket connected");
+        setConnected(true);
+        reconnectAttempt = 0;
+
+        if (reconnectToastId !== undefined) {
+          toast.dismiss(reconnectToastId);
+          reconnectToastId = undefined;
+        }
+      };
+
+      socket.onclose = (event) => {
+        clearConnectTimeout();
+
+        if (disposed || currentSocket !== socket) {
+          return;
+        }
+
+        currentSocket = null;
+
+        if (socketRef.current === socket) {
+          socketRef.current = null;
+        }
+
         setConnected(false);
 
         console.log("WebSocket closed", {
           code: event.code,
           reason: event.reason,
-          clean: event.wasClean,
+          clean: event.wasClean
         });
-      }
-    };
 
-    socket.onerror = (event) => {
-      if (!disposed) {
-        console.error("WebSocket error", event);
-      }
-    };
+        notifyDisconnected();
+        scheduleReconnect();
+      };
 
-    socket.onmessage = (event) => {
-      if (disposed) {
-        return;
-      }
+      socket.onerror = (event) => {
+        if (!disposed && currentSocket === socket) {
+          console.error("WebSocket error", event);
+        }
+      };
 
-      let message: unknown;
+      socket.onmessage = (event) => {
+        if (disposed || currentSocket !== socket) {
+          return;
+        }
 
-      try {
-        message = JSON.parse(event.data);
-      } catch {
-        console.warn("Received non-JSON WebSocket message", event.data);
-        return;
-      }
+        let message: unknown;
 
-      onMessageRef.current?.(message);
-    };
+        try {
+          message = JSON.parse(event.data);
+        } catch {
+          console.warn("Received non-JSON WebSocket message", event.data);
+          return;
+        }
+
+        onMessageRef.current?.(message);
+      };
+    }
+
+    connect();
 
     return () => {
       disposed = true;
 
-      clearTimeout(timeout);
-      socket.close();
+      clearConnectTimeout();
 
-      if (socketRef.current === socket) {
+      if (reconnectTimer !== null) {
+        window.clearTimeout(reconnectTimer);
+        reconnectTimer = null;
+      }
+
+      if (reconnectToastId !== undefined) {
+        toast.dismiss(reconnectToastId);
+      }
+
+      if (currentSocket !== null) {
+        currentSocket.onopen = null;
+        currentSocket.onclose = null;
+        currentSocket.onerror = null;
+        currentSocket.onmessage = null;
+
+        currentSocket.close();
+      }
+
+      if (socketRef.current === currentSocket) {
         socketRef.current = null;
       }
     };

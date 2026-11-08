@@ -8,7 +8,7 @@ import type {
   HelloMessage, OkResponse,
   StateUpdateMessage
 } from "./protocol.ts";
-import {useCallback, useRef, useState} from "react";
+import {useCallback, useEffect, useRef, useState} from "react";
 import {useWebSocket} from "../transport/useWebsocket.ts";
 
 class DspProtocolError extends Error {
@@ -40,11 +40,15 @@ interface AuthoritativeState {
 }
 
 const REQUEST_TIMEOUT_MS = 3000;
+const HEARTBEAT_TIMEOUT = 10000;
 
 export const useDspClient = (url: string) => {
   const nextIdRef = useRef(1);
   const revisionRef = useRef<number | null>(null);
   const [authoritative, setAuthoritative] = useState<AuthoritativeState | null>(null);
+
+  const lastHeartbeatRef = useRef<number | null>(null);
+  const reconnectRef = useRef<() => void>(() => {});
 
   const pendingRef = useRef(
     new Map<number, PendingRequest>()
@@ -60,7 +64,14 @@ export const useDspClient = (url: string) => {
 
     const message = raw as DspMessage;
 
+    if(message.type === "heartbeat") {
+      lastHeartbeatRef.current = Date.now();
+      return;
+    }
+
     if (message.type === "hello") {
+      lastHeartbeatRef.current = Date.now();
+
       setHello(message);
 
       revisionRef.current = message.revision;
@@ -185,9 +196,43 @@ export const useDspClient = (url: string) => {
     revisionRef.current = null;
     setAuthoritative(null);
 
+    setHello(null);
+    setAuthoritative(null);
+
     rejectPendingRequests(new Error("DSP connection was reset"));
     websocket.reconnect();
   };
+
+  useEffect(() => {
+    reconnectRef.current = reconnect;
+  }, [reconnect]);
+
+  useEffect(() => {
+    if(!websocket.connected) {
+      lastHeartbeatRef.current = null;
+      return;
+    }
+
+    lastHeartbeatRef.current = Date.now();
+
+    const watchdog = window.setInterval(() => {
+        const lastHeartbeat = lastHeartbeatRef.current;
+
+        if(lastHeartbeat === null) {
+          return;
+        }
+
+        if(Date.now() - lastHeartbeat > HEARTBEAT_TIMEOUT) {
+          console.warn("DSP heartbeat timed out");
+          lastHeartbeatRef.current = null;
+          reconnectRef.current();
+        }
+    }, 1000);
+
+    return () => {
+      window.clearInterval(watchdog);
+    }
+  }, [websocket.connected]);
 
   function applyStateUpdate(state: DspState, update: StateUpdateMessage) {
     let next = state;

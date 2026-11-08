@@ -162,6 +162,10 @@ export interface StateUpdateMessage {
   changes: DspStateChange[];
 }
 
+export interface HeartbeatMessage {
+  type: "heartbeat";
+}
+
 export type DspRequest =
   | SetChannelGainRequest
   | SetChannelMutedRequest
@@ -175,7 +179,8 @@ export type DspResponse =
 export type DspMessage =
   | HelloMessage
   | DspResponse
-  | StateUpdateMessage;
+  | StateUpdateMessage
+  | HeartbeatMessage;
 
 export const inputTarget = (channel: number): ChannelTarget => ({
   channel_type: "input",
